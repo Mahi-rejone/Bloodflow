@@ -1,26 +1,148 @@
 @import "tailwindcss";
+@theme {
+  /* Primary Brand */
+  --color-app-primary: #dc2626; /* Blood red */
+  --color-app-primary-dark: #b91c1c;
+  --color-app-primary-light: #ef4444;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Dark Sections */
+  --color-app-dark: #111827; /* Footer */
+  --color-app-dark-light: #1f2937; /* Contact card */
+  --color-app-dark-lighter: #374151;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Backgrounds */
+  --color-app-bg: #f8fafc;
+  --color-app-bg-soft: #f1f5f9;
+  --color-app-white: #ffffff;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Text */
+  --color-app-text: #111827;
+  --color-app-text-light: #6b7280;
+  --color-app-text-muted: #9ca3af;
+
+  /* Borders */
+  --color-app-border: #e5e7eb;
+  --color-app-border-light: #f3f4f6;
+
+  /* Status */
+  --color-app-success: #22c55e;
+  --color-app-error: #ef4444;
+  --color-app-warning: #f59e0b;
+  --color-app-info: #3b82f6;
+
+  /* Extra Accent */
+  --color-app-accent: #ec4899; /* Small icon highlights */
+  --color-app-accent-light: #f9a8d4;
+
+  --font-sans: "Outfit", sans-serif;
+  --font-serif: "DM Serif Display", serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-app-text);
+  background-color: var(--color-app-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-app-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-app-green-lighter);
+  border-radius: 3px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth transitions globally */
+a,
+button {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+input:focus {
+  outline: none;
+}
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.dropdown-link {
+  @apply flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-500 hover:bg-orange-50/80 hover:text-zinc-900 transition-colors;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.4s ease-out forwards;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }
