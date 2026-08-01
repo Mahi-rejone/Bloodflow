@@ -4,7 +4,7 @@ import { DropletsIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Input, Button, Select, DatePicker, Form, message } from "antd";
+import { Input, Button, Select, DatePicker, Form } from "antd";
 import {
   LockOutlined,
   MailFilled,
@@ -24,6 +24,7 @@ export default function Register() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = async (values: any) => {
     setErrorMsg("");
 
@@ -47,6 +48,7 @@ export default function Register() {
     try {
       await registerUser(payload).unwrap();
       router.push("/login");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setErrorMsg(err?.data?.errorMessage || "Registration failed");
     }

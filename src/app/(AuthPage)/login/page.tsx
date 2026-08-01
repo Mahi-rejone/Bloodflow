@@ -6,7 +6,7 @@ import { DropletsIcon, LockIcon, MailIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -16,6 +16,7 @@ export default function Login() {
   const router = useRouter();
   const [login, {isLoading, error}] = useLoginMutation()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (e: any) => {
     
     try {
@@ -47,6 +48,7 @@ export default function Login() {
         router.push("/");
       }
    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
       if (error?.data?.errorMessage){
         setLoading(false);
@@ -105,7 +107,7 @@ export default function Login() {
             <h1 className="text-3xl font-bold text-app-text mb-2">Sign In</h1>
 
             <p className="text-app-text-light">
-              Don't have an account?
+              New Here?
               <Link
                 href="/register"
                 className="ml-2 text-app-primary font-semibold hover:text-app-primary-dark hover:underline transition-colors"

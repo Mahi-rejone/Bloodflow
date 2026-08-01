@@ -8,6 +8,7 @@ const RouteGenerator = (
     path: string;
     icon: JSX.Element;
   }[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setUserMenuOpen: any,
 ) => {
   return routeData?.map((d, i) => (
