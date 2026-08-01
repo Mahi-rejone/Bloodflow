@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -36,11 +37,30 @@ export default function Login() {
             accessToken: result.data
           }),
         );
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Successfully Logged In.",
+          showConfirmButton: false,
+          timer: 1500,
+        });
         router.push("/");
       }
    
-    } catch (error) {
-      console.log(error)
+    } catch (error:any) {
+      if (error?.data?.errorMessage){
+        setLoading(false);
+        return Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: error?.data?.errorMessage,
+        });
+      }
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: error?.message,
+        });
       setLoading(false);
     }
   };

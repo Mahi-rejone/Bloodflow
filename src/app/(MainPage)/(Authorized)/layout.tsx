@@ -1,3 +1,4 @@
+import UrlRedirect from "@/components/urlRedirect";
 import { cookies } from "next/headers";
 
 export default async function AuthorizedLayout({
@@ -6,7 +7,10 @@ export default async function AuthorizedLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  console.log(cookieStore.get('accessToken'));
+  const token = cookieStore.get('accessToken')?.value
+  if(!token){
+    return <UrlRedirect url="/login" key={1} />
+  }
   return (
     <div>
       <main className="min-h-screen">{children}</main>

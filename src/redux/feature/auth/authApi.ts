@@ -9,15 +9,15 @@ const authApi = baseApi.injectEndpoints({
         body: payload,
       }),
     }),
-    createUser: builder.mutation({
-      query: (payload) => ({
-        url: "/user/create-user",
+    logOut: builder.mutation({
+      query: () => ({
+        url: "/auth/logout",
         method: "POST",
-        body: payload,
       }),
       invalidatesTags: ["User"],
     }),
+    
   }),
 });
 
-export const { useLoginMutation, useCreateUserMutation } = authApi;
+export const { useLoginMutation, useLogOutMutation } = authApi;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -14,11 +14,21 @@ import {
   UserIcon,
   SearchIcon,
 } from "lucide-react";
-import { useAppSelector } from "@/redux/hooks";
-import { selectCurrentUser } from "@/redux/feature/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  logout,
+  selectCurrentToken,
+  selectCurrentUser,
+} from "@/redux/feature/authSlice";
+import { Button } from "antd";
+import { useLogOutMutation } from "@/redux/feature/auth/authApi";
+import Swal from "sweetalert2";
 
 export default function Navbar() {
-const user = useAppSelector(selectCurrentUser);
+  const user = useAppSelector(selectCurrentUser);
+  const token = useAppSelector(selectCurrentToken);
+  const dispatch = useAppDispatch();
+  const [userLogout] = useLogOutMutation();
 
   const { notificationCount, setIsNotificationsOpen } = {
     notificationCount: 3,
@@ -28,6 +38,7 @@ const user = useAppSelector(selectCurrentUser);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -43,7 +54,26 @@ const user = useAppSelector(selectCurrentUser);
     { href: "/requests", label: "Blood Requests" },
     { href: "/blogs", label: "Blogs & Events" },
   ];
-
+  useEffect(() => {
+    if(token){
+      setIsMounted(true);
+    }
+  }, []);
+  const handleLogout = async () => {
+    setUserMenuOpen(false);
+    setIsMounted(false)
+    const result = await userLogout(undefined).unwrap();
+    if (result?.success) {
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Successfully Logged out.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return dispatch(logout());
+    }
+  };
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-app-border">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-4 md:grid md:grid-cols-[auto_1fr_auto] md:justify-normal">
@@ -106,15 +136,26 @@ const user = useAppSelector(selectCurrentUser);
           </button>
 
           <div className="relative">
-            <button
-              onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-zinc-100 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
-                {user?.username.charAt(0)}
-              </div>
-              <ChevronDown size={16} className="text-zinc-500" />
-            </button>
+            {isMounted ? (
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-zinc-100 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
+                  {isMounted && user?.username.charAt(0)
+                    ? user?.username.charAt(0)
+                    : ""}
+                </div>
+                <ChevronDown size={16} className="text-zinc-500" />
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+              >
+                Login
+              </Link>
+            )}
 
             {userMenuOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-app-border rounded-lg shadow-lg py-2">
@@ -135,7 +176,7 @@ const user = useAppSelector(selectCurrentUser);
                   <UserIcon size={16} /> Profile
                 </Link>
 
-                {user?.role==="ADMIN" && (
+                {user?.role === "ADMIN" && (
                   <Link
                     href="/admin"
                     className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
@@ -146,10 +187,7 @@ const user = useAppSelector(selectCurrentUser);
                 )}
 
                 <button
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    router.push("/logout");
-                  }}
+                  onClick={() => handleLogout()}
                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-zinc-50"
                 >
                   <LogOut size={16} /> Logout
@@ -212,7 +250,9 @@ const user = useAppSelector(selectCurrentUser);
                 {user?.username.charAt(0)}
               </div>
               <div>
-                <p className="text-sm font-medium text-app-text">{user?.username}</p>
+                <p className="text-sm font-medium text-app-text">
+                  {user?.username}
+                </p>
                 <p className="text-xs text-app-text-light truncate">
                   {user?.email}
                 </p>
@@ -231,7 +271,7 @@ const user = useAppSelector(selectCurrentUser);
             </button>
           </div>
 
-          {user?.role==="ADMIN" && (
+          {user?.role === "ADMIN" && (
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}

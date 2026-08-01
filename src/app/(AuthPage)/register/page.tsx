@@ -12,7 +12,7 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { useCreateUserMutation } from "@/redux/feature/auth/authApi";
+import { useCreateUserMutation } from "@/redux/feature/user/userApi";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
