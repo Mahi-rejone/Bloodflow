@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppSelector } from "@/redux/hooks";
 import {
   DropletsIcon,
   UserIcon,
@@ -23,7 +24,6 @@ export default function Register() {
   const [district, setDistrict] = useState("");
   const [town, setTown] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -32,7 +32,7 @@ export default function Register() {
       username,
       email,
       password,
-      role: "DONOR_RECIPIENT", // default, not user-selectable
+      role: "USER", 
       profile: {
         blood_group: bloodGroup,
         phone_number: phoneNumber,

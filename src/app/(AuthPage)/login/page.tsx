@@ -1,25 +1,51 @@
 "use client";
-
+import { useLoginMutation } from "@/redux/feature/auth/authApi";
+import { setCredentials } from "@/redux/feature/authSlice";
+import { decodeToken } from "@/utils/decodeJwt";
 import { DropletsIcon, LockIcon, MailIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-
+import { use, useState } from "react";
+import { useDispatch } from "react-redux";
+type TUser ={
+  id: string
+  email: string
+  role: string
+}
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
+  const [login, {isLoading, error}] = useLoginMutation()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: any) => {
+    
+    try {
+      setLoading(true);
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      const result = await login({email, password}).unwrap()
+      if(result.success){
+        setLoading(false)
+        const userData = decodeToken(result.data) as TUser;
+        dispatch(
+          setCredentials({
+            user: {
+              id: userData.id,
+              email: userData.email,
+              role: userData.role,
+            },
+            accessToken: result.data
+          }),
+        );
 
-    setLoading(true);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 1000);
+      }
+   
+    } catch (error) {
+      console.log(error)
+      setLoading(false);
+    }
   };
-
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
@@ -92,8 +118,6 @@ export default function Login() {
                   id="email"
                   type="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
                 />
@@ -119,8 +143,6 @@ export default function Login() {
                   id="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
                 />

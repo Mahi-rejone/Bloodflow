@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit, DM_Serif_Display } from "next/font/google";
+import ReduxProvider from "@/redux/Providers";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -29,7 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${dmSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ReduxProvider>{children}</ReduxProvider>
+      </body>
     </html>
   );
 }
