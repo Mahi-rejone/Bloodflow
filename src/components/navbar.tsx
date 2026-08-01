@@ -20,9 +20,12 @@ import {
   selectCurrentToken,
   selectCurrentUser,
 } from "@/redux/feature/authSlice";
-import { Button } from "antd";
 import { useLogOutMutation } from "@/redux/feature/auth/authApi";
 import Swal from "sweetalert2";
+import RouteGenerator from "@/utils/RouteGeneratior";
+import adminRoute from "@/routes/admin.route";
+import { user_role } from "@/const/user.const";
+import userRoute from "@/routes/user.route";
 
 export default function Navbar() {
   const user = useAppSelector(selectCurrentUser);
@@ -55,13 +58,16 @@ export default function Navbar() {
     { href: "/blogs", label: "Blogs & Events" },
   ];
   useEffect(() => {
-    if(token){
+    if (token) {
       setIsMounted(true);
     }
-  }, []);
+  }, [token]);
+  // if (!isMounted) {
+  //   return <div>Loading...</div>;
+  // }
   const handleLogout = async () => {
     setUserMenuOpen(false);
-    setIsMounted(false)
+    setIsMounted(false);
     const result = await userLogout(undefined).unwrap();
     if (result?.success) {
       Swal.fire({
@@ -71,9 +77,21 @@ export default function Navbar() {
         showConfirmButton: false,
         timer: 1500,
       });
-      return dispatch(logout());
+      dispatch(logout());
+      return router.push("/");
     }
   };
+  let MenuData;
+  switch (user?.role) {
+    case user_role.admin:
+      MenuData = RouteGenerator(user_role.admin, adminRoute, setUserMenuOpen);
+      break;
+    case user_role.user:
+      MenuData = RouteGenerator(user_role.user, userRoute, setUserMenuOpen);
+      break;
+    default:
+      MenuData = <></>;
+  }
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-app-border">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-4 md:grid md:grid-cols-[auto_1fr_auto] md:justify-normal">
@@ -116,24 +134,28 @@ export default function Navbar() {
         {/* Right side: CTA + notifications + user menu (desktop) */}
         <div className="hidden md:flex items-center gap-4 justify-self-end">
           <Link
-            href="/requests/new"
+            href={`/requests/new`}
             className="bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
             Request Blood
           </Link>
 
-          <button
-            onClick={() => setIsNotificationsOpen(true)}
-            className="relative p-2 rounded-full hover:bg-zinc-100 transition-colors"
-            aria-label="Notifications"
-          >
-            <BellIcon size={20} className="text-zinc-600" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-app-primary text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                {notificationCount}
-              </span>
-            )}
-          </button>
+          {isMounted ? (
+            <button
+              onClick={() => setIsNotificationsOpen(true)}
+              className="relative p-2 rounded-full hover:bg-zinc-100 transition-colors"
+              aria-label="Notifications"
+            >
+              <BellIcon size={20} className="text-zinc-600" />
+              {notificationCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-app-primary text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                  {notificationCount}
+                </span>
+              )}
+            </button>
+          ) : (
+            <></>
+          )}
 
           <div className="relative">
             {isMounted ? (
@@ -168,23 +190,7 @@ export default function Navbar() {
                   </p>
                 </div>
 
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
-                  onClick={() => setUserMenuOpen(false)}
-                >
-                  <UserIcon size={16} /> Profile
-                </Link>
-
-                {user?.role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <LayoutDashboard size={16} /> Dashboard
-                  </Link>
-                )}
+                {MenuData}
 
                 <button
                   onClick={() => handleLogout()}
