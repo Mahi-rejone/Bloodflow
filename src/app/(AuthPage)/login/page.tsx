@@ -1,20 +1,18 @@
 "use client";
 import { useLoginMutation } from "@/redux/feature/auth/authApi";
-import { setCredentials } from "@/redux/feature/authSlice";
+import { setCredentials, TUser } from "@/redux/feature/authSlice";
 import { decodeToken } from "@/utils/decodeJwt";
 import { DropletsIcon, LockIcon, MailIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { useDispatch } from "react-redux";
-type TUser ={
-  id: string
-  email: string
-  role: string
-}
+
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
+  const router = useRouter();
   const [login, {isLoading, error}] = useLoginMutation()
 
   const handleSubmit = async (e: any) => {
@@ -26,19 +24,19 @@ export default function Login() {
       const password = e.target.password.value;
       const result = await login({email, password}).unwrap()
       if(result.success){
-        setLoading(false)
         const userData = decodeToken(result.data) as TUser;
         dispatch(
           setCredentials({
             user: {
-              id: userData.id,
-              email: userData.email,
-              role: userData.role,
+              id: userData!.id,
+              email: userData!.email,
+              role: userData!.role,
+              username:userData!.username,
             },
             accessToken: result.data
           }),
         );
-
+        router.push("/");
       }
    
     } catch (error) {

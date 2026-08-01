@@ -11,6 +11,7 @@
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.13.0",
     "@reduxjs/toolkit": "^2.12.0",
+    "antd": "^6.5.3",
     "cookies-next": "^6.1.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
@@ -21,7 +22,8 @@
     "react-hook-form": "^7.84.0",
     "react-hot-toast": "^2.6.0",
     "react-leaflet": "^5.0.0",
-    "react-redux": "^9.3.0"
+    "react-redux": "^9.3.0",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

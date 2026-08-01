@@ -14,13 +14,11 @@ import {
   UserIcon,
   SearchIcon,
 } from "lucide-react";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCurrentUser } from "@/redux/feature/authSlice";
 
 export default function Navbar() {
-  const user: any = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    isAdmin: true,
-  };
+const user = useAppSelector(selectCurrentUser);
 
   const { notificationCount, setIsNotificationsOpen } = {
     notificationCount: 3,
@@ -113,7 +111,7 @@ export default function Navbar() {
               className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-zinc-100 transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
-                {user.name.charAt(0)}
+                {user?.username.charAt(0)}
               </div>
               <ChevronDown size={16} className="text-zinc-500" />
             </button>
@@ -122,10 +120,10 @@ export default function Navbar() {
               <div className="absolute right-0 mt-2 w-56 bg-white border border-app-border rounded-lg shadow-lg py-2">
                 <div className="px-4 py-2 border-b border-app-border">
                   <p className="text-sm font-medium text-app-text">
-                    {user.name}
+                    {user?.username}
                   </p>
                   <p className="text-xs text-app-text-light truncate">
-                    {user.email}
+                    {user?.email}
                   </p>
                 </div>
 
@@ -137,7 +135,7 @@ export default function Navbar() {
                   <UserIcon size={16} /> Profile
                 </Link>
 
-                {user.isAdmin && (
+                {user?.role==="ADMIN" && (
                   <Link
                     href="/admin"
                     className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
@@ -211,12 +209,12 @@ export default function Navbar() {
           <div className="flex items-center justify-between pt-3 border-t border-app-border">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
-                {user.name.charAt(0)}
+                {user?.username.charAt(0)}
               </div>
               <div>
-                <p className="text-sm font-medium text-app-text">{user.name}</p>
+                <p className="text-sm font-medium text-app-text">{user?.username}</p>
                 <p className="text-xs text-app-text-light truncate">
-                  {user.email}
+                  {user?.email}
                 </p>
               </div>
             </div>
@@ -233,7 +231,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          {user.isAdmin && (
+          {user?.role==="ADMIN" && (
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}

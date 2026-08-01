@@ -1,52 +1,55 @@
 "use client";
 
-import { useAppSelector } from "@/redux/hooks";
-import {
-  DropletsIcon,
-  UserIcon,
-  LockIcon,
-  MailIcon,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { DropletsIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Input, Button, Select, DatePicker, Form, message } from "antd";
+import {
+  LockOutlined,
+  MailFilled,
+  UserOutlined,
+  PhoneOutlined,
+} from "@ant-design/icons";
+import { useRouter } from "next/navigation";
+import { useCreateUserMutation } from "@/redux/feature/auth/authApi";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
+const toBloodGroupEnum = (value: string) =>
+  value.replace("+", "_POS").replace("-", "_NEG");
+
 export default function Register() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [bloodGroup, setBloodGroup] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [district, setDistrict] = useState("");
-  const [town, setTown] = useState("");
-  const [loading, setLoading] = useState(false);
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const [registerUser, { isLoading }] = useCreateUserMutation();
+  const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const onFinish = async (values: any) => {
+    setErrorMsg("");
 
     const payload = {
-      username,
-      email,
-      password,
-      role: "USER", 
+      username: values.username,
+      fullName: values.fullName,
+      email: values.email,
+      password: values.password,
+      role: "USER",
       profile: {
-        blood_group: bloodGroup,
-        phone_number: phoneNumber,
-        district,
-        town,
+        bloodGroup: toBloodGroupEnum(values.bloodGroup),
+        phoneNumber: values.phoneNumber,
+        state: values.state,
+        district: values.district,
+        town: values.town,
+        dateOfBirth: values.dateOfBirth?.toISOString(),
+        gender: values.gender,
       },
     };
 
-    // TODO: replace with real fetch("/api/auth/register", { method: "POST", body: JSON.stringify(payload) })
-    console.log(payload);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 1000);
+    try {
+      await registerUser(payload).unwrap();
+      router.push("/login");
+    } catch (err: any) {
+      setErrorMsg(err?.data?.errorMessage || "Registration failed");
+    }
   };
 
   return (
@@ -61,12 +64,10 @@ export default function Register() {
           priority
           sizes="50vw"
         />
-
         <div className="relative z-10 text-center px-12">
           <h2 className="text-4xl font-bold text-white mb-5">
             Join BloodFlow Today!
           </h2>
-
           <p className="text-white/70 text-lg max-w-md mx-auto leading-relaxed">
             Become a donor, connect with those in need, and help save lives
             through every contribution.
@@ -77,20 +78,16 @@ export default function Register() {
       {/* Right Side */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-app-bg">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-app-border">
-          {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
               <DropletsIcon className="text-app-primary" size={34} />
-
               <span className="text-3xl font-bold text-app-primary">
                 BloodFlow
               </span>
             </Link>
-
             <h1 className="text-3xl font-bold text-app-text mb-2">
               Create Account
             </h1>
-
             <p className="text-app-text-light">
               Already have an account?
               <Link
@@ -102,214 +99,143 @@ export default function Register() {
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username */}
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Username
-              </label>
+          {errorMsg && (
+            <p className="text-red-500 text-sm text-center mb-4">{errorMsg}</p>
+          )}
 
-              <div className="relative">
-                <UserIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <input
-                  id="username"
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Choose a username"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Email Address
-              </label>
-
-              <div className="relative">
-                <MailIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Password
-              </label>
-
-              <div className="relative">
-                <LockIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Blood Group */}
-            <div>
-              <label
-                htmlFor="bloodGroup"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Blood Group
-              </label>
-
-              <div className="relative">
-                <DropletsIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <select
-                  id="bloodGroup"
-                  required
-                  value={bloodGroup}
-                  onChange={(e) => setBloodGroup(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all bg-white appearance-none"
-                >
-                  <option value="" disabled>
-                    Select your blood group
-                  </option>
-                  {BLOOD_GROUPS.map((group) => (
-                    <option key={group} value={group}>
-                      {group}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Phone Number
-              </label>
-
-              <div className="relative">
-                <Phone
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <input
-                  id="phoneNumber"
-                  type="tel"
-                  required
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="01XXXXXXXXX"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* District + Town */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="district"
-                  className="block text-sm font-medium text-app-text mb-2"
-                >
-                  District
-                </label>
-
-                <div className="relative">
-                  <MapPin
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                    size={20}
-                  />
-
-                  <input
-                    id="district"
-                    type="text"
-                    required
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    placeholder="e.g. Dhaka"
-                    className="w-full pl-11 pr-3 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="town"
-                  className="block text-sm font-medium text-app-text mb-2"
-                >
-                  Town
-                </label>
-
-                <div className="relative">
-                  <MapPin
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                    size={20}
-                  />
-
-                  <input
-                    id="town"
-                    type="text"
-                    required
-                    value={town}
-                    onChange={(e) => setTown(e.target.value)}
-                    placeholder="e.g. Mirpur"
-                    className="w-full pl-11 pr-3 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-app-primary hover:bg-app-primary-dark text-white py-3 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          <Form name="register" layout="vertical" onFinish={onFinish}>
+            <Form.Item
+              name="username"
+              rules={[
+                { required: true, message: "Please input your Username!" },
+              ]}
             >
-              {loading ? "Creating Account..." : "Sign Up"}
-            </button>
-          </form>
+              <Input prefix={<UserOutlined />} placeholder="Username" />
+            </Form.Item>
+
+            <Form.Item
+              name="fullName"
+              rules={[
+                { required: true, message: "Please input your Full Name!" },
+              ]}
+            >
+              <Input prefix={<UserOutlined />} placeholder="Full Name" />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              rules={[
+                { required: true, message: "Please input your email!" },
+                { type: "email", message: "Enter a valid email address" },
+              ]}
+            >
+              <Input prefix={<MailFilled />} placeholder="Email Address" />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              rules={[
+                { required: true, message: "Please input your Password!" },
+                { min: 6, message: "Password must be at least 6 characters" },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Password"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="phoneNumber"
+              rules={[
+                { required: true, message: "Please input your Phone Number!" },
+              ]}
+            >
+              <Input prefix={<PhoneOutlined />} placeholder="01XXXXXXXXX" />
+            </Form.Item>
+
+            <Form.Item
+              name="bloodGroup"
+              rules={[
+                { required: true, message: "Please select your Blood Group!" },
+              ]}
+            >
+              <Select
+                placeholder="Select your blood group"
+                options={BLOOD_GROUPS.map((g) => ({ value: g, label: g }))}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="gender"
+              rules={[
+                { required: true, message: "Please select your Gender!" },
+              ]}
+            >
+              <Select
+                placeholder="Select gender"
+                options={[
+                  { value: "Male", label: "Male" },
+                  { value: "Female", label: "Female" },
+                ]}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="dateOfBirth"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select your Date of Birth!",
+                },
+              ]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="Date of Birth"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="state"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your State/Division!",
+                },
+              ]}
+            >
+              <Input placeholder="e.g. Dhaka Division" />
+            </Form.Item>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item
+                name="district"
+                rules={[{ required: true, message: "Required" }]}
+              >
+                <Input placeholder="District" />
+              </Form.Item>
+
+              <Form.Item
+                name="town"
+                rules={[{ required: true, message: "Required" }]}
+              >
+                <Input placeholder="Town" />
+              </Form.Item>
+            </div>
+
+            <Form.Item>
+              <Button
+                block
+                type="primary"
+                htmlType="submit"
+                loading={isLoading}
+                style={{backgroundColor:'red'}}
+              >
+                Sign Up
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
       </div>
     </div>

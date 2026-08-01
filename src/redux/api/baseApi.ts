@@ -8,7 +8,7 @@ export const baseApi = createApi({
     baseUrl: "http://localhost:5000/api/v1",
     credentials: "include", // sends the refreshToken httpOnly cookie
     prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
+      const token = (getState() as RootState).persisted.auth.accessToken;
       if (token) {
         headers.set("Authorization", token);
       }
