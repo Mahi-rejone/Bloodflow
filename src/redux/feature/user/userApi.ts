@@ -10,6 +10,13 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    getMe : builder.query({
+      query: (payload)=>({
+        url: "/user/get-me",
+        method: "GET",
+      }),
+      providesTags:["User"]
+    })
   }),
 });
 export const { useCreateUserMutation } = userApi;
