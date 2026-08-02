@@ -16,7 +16,6 @@ const UrlRedirect = ({ url, allowExternal = false }: UrlRedirectProps) => {
     if (isInternal) {
       router.replace(url);
     } else if (allowExternal) {
-      // Use standard window navigation for approved external sites
       window.location.replace(url);
     } else {
       console.warn("Blocked unsafe external redirect attempt:", url);
