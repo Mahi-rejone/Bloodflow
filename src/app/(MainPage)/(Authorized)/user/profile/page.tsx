@@ -123,7 +123,7 @@ function calcAge(dobStr: string | null | undefined): string {
 function DetailRow({ label, value, mono = false }: { label: string; value: string | null | undefined; mono?: boolean }) {
   const isEmpty = value === null || value === undefined || value === "";
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-[#E4E0D8] py-2.5 text-sm last:border-b-0 sm:flex-row flex-col sm:items-baseline items-start sm:gap-3 gap-0.5">
+    <div className="flex justify-between gap-3 border-b border-[#E4E0D8] py-2.5 text-sm last:border-b-0 sm:flex-row flex-col sm:items-baseline items-start sm:gap-3">
       <span className="shrink-0 text-[#5B554F]">{label}</span>
       <span
         className={[

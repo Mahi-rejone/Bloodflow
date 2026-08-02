@@ -47,8 +47,9 @@ export default function Register() {
 
     try {
       await registerUser(payload).unwrap();
-      router.push("/login");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      localStorage.setItem("verifyEmail", values.email);
+      router.push("/verify");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setErrorMsg(err?.data?.errorMessage || "Registration failed");
     }
@@ -232,7 +233,7 @@ export default function Register() {
                 type="primary"
                 htmlType="submit"
                 loading={isLoading}
-                style={{backgroundColor:'red'}}
+                style={{ backgroundColor: "#dc2626" }}
               >
                 Sign Up
               </Button>

@@ -11,7 +11,6 @@ export default function RootLayout({
       <Navbar></Navbar>
       <main className="min-h-screen">{children}</main>
       <Footer></Footer>
-      <p>cart sidebar</p>
     </div>
   );
 }

@@ -10,13 +10,34 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
-    getMe : builder.query({
-      query: (payload)=>({
+    verifyUser: builder.mutation({
+      query: (payload) => ({
+        url: "/user/verify",
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["User"],
+    }),
+    resendVerificationCode: builder.mutation({
+      query: (payload) => ({
+        url: "/user/resend-verification",
+        method: "POST",
+        body: payload,
+      }),
+    }),
+    getMe: builder.query({
+      query: () => ({
         url: "/user/get-me",
         method: "GET",
       }),
-      providesTags:["User"]
-    })
+      providesTags: ["User"],
+    }),
   }),
 });
-export const { useCreateUserMutation } = userApi;
+
+export const {
+  useCreateUserMutation,
+  useVerifyUserMutation,
+  useResendVerificationCodeMutation,
+  useGetMeQuery,
+} = userApi;

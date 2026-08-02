@@ -24,6 +24,7 @@
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.3.0",
     "redux-persist": "^6.0.0",
+    "resend": "^6.18.1",
     "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
