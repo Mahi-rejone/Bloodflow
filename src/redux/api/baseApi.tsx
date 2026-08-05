@@ -36,7 +36,7 @@ const baseQueryWithRefreshToken: BaseQueryFn<
       extraOptions,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     )) as any;
-    if (!refreshResult?.data?.data) {
+    if (refreshResult?.data?.data) {
       const user = (api.getState() as RootState).persisted.auth.user;
       api.dispatch(
         setCredentials({
