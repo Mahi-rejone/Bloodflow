@@ -1,8 +1,6 @@
 "use client";
 
 import { useGetMeQuery } from "@/redux/feature/user/userApi"; 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 
 const fraunces = Fraunces({
@@ -146,14 +144,7 @@ function DetailRow({
 // ---------- Page ----------
 export default function ProfilePage() {
   const { data, isLoading, error } = useGetMeQuery(undefined);
-  const router = useRouter();
   const user = data?.data as User | undefined;
-
-  useEffect(() => {
-    if (error && "status" in error && error.status === 401) {
-      router.push("/login");
-    }
-  }, [error, router]);
 
   if (isLoading) {
     return (
@@ -211,7 +202,7 @@ export default function ProfilePage() {
               boxShadow: `0 0 0 3px ${isActive ? "rgba(47,110,78,0.15)" : "rgba(179,84,30,0.15)"}`,
             }}
           />
-          Donor record
+         {ROLE_LABEL[user.role] || user.role}
         </div>
 
         {/* Donor card */}
@@ -303,7 +294,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="text-center font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#5B554F]">
-              {user.role === "USER" ? "Certified donor" : ROLE_LABEL[user.role]}
+              {ROLE_LABEL[user.role]}
             </div>
           </div>
         </div>
