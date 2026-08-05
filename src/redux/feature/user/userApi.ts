@@ -10,7 +10,7 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
-    
+
     verifyUser: builder.mutation({
       query: (payload) => ({
         url: "/user/verify",
@@ -42,12 +42,14 @@ const userApi = baseApi.injectEndpoints({
         district?: string;
         town?: string;
         state?: string;
+        search?: string;
       }) => {
         const params = new URLSearchParams();
         if (filters.bloodGroup) params.set("bloodGroup", filters.bloodGroup);
         if (filters.district) params.set("district", filters.district);
         if (filters.town) params.set("town", filters.town);
         if (filters.state) params.set("state", filters.state);
+        if (filters.search) params.set("search", filters.search);
         return `/user/donors?${params.toString()}`;
       },
       providesTags: ["User"],

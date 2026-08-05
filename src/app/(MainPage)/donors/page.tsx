@@ -1,7 +1,8 @@
 // src/app/(MainPage)/donors/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useGetAllDonorsQuery } from "@/redux/feature/user/userApi";
 import {
   Card,
@@ -18,6 +19,7 @@ import {
   PhoneOutlined,
   UserOutlined,
   WhatsAppOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { MapPinIcon, DropletsIcon } from "lucide-react";
 import { toWhatsAppLink } from "@/utils/whatsapp";
@@ -32,16 +34,27 @@ const bloodGroupLabel = (value: string) =>
   value.replace("_POS", "+").replace("_NEG", "-");
 
 export default function DonorsPage() {
+  const searchParams = useSearchParams();
+
   const [bloodGroup, setBloodGroup] = useState<string | undefined>();
   const [state, setState] = useState("");
   const [district, setDistrict] = useState("");
   const [town, setTown] = useState("");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) {
+      setSearch(q);
+    }
+  }, [searchParams]);
 
   const { data, isLoading, error } = useGetAllDonorsQuery({
     bloodGroup: bloodGroup ? toBloodGroupEnum(bloodGroup) : undefined,
     state: state || undefined,
     district: district || undefined,
     town: town || undefined,
+    search: search || undefined,
   });
 
   const donors = data?.data ?? [];
@@ -55,34 +68,45 @@ export default function DonorsPage() {
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-8">
-        <Select
+      {/* Search + filters */}
+      <div className="flex flex-col gap-3 mb-8">
+        <Input
           allowClear
-          placeholder="Blood group"
-          style={{ width: 180 }}
-          value={bloodGroup}
-          onChange={setBloodGroup}
-          options={BLOOD_GROUPS.map((g) => ({ value: g, label: g }))}
+          size="large"
+          prefix={<SearchOutlined className="text-zinc-400" />}
+          placeholder="Search by name or location..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <Input
-          placeholder="State/Division (e.g. Dhaka Division)"
-          value={state}
-          onChange={(e) => setState(e.target.value)}
-          style={{ maxWidth: 220 }}
-        />
-        <Input
-          placeholder="District (e.g. Dhaka)"
-          value={district}
-          onChange={(e) => setDistrict(e.target.value)}
-          style={{ maxWidth: 220 }}
-        />
-        <Input
-          placeholder="Town (e.g. Mirpur)"
-          value={town}
-          onChange={(e) => setTown(e.target.value)}
-          style={{ maxWidth: 220 }}
-        />
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Select
+            allowClear
+            placeholder="Blood group"
+            style={{ width: 180 }}
+            value={bloodGroup}
+            onChange={setBloodGroup}
+            options={BLOOD_GROUPS.map((g) => ({ value: g, label: g }))}
+          />
+          <Input
+            placeholder="State/Division (e.g. Dhaka Division)"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            style={{ maxWidth: 220 }}
+          />
+          <Input
+            placeholder="District (e.g. Dhaka)"
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            style={{ maxWidth: 220 }}
+          />
+          <Input
+            placeholder="Town (e.g. Mirpur)"
+            value={town}
+            onChange={(e) => setTown(e.target.value)}
+            style={{ maxWidth: 220 }}
+          />
+        </div>
       </div>
 
       {isLoading && (
@@ -145,7 +169,7 @@ export default function DonorsPage() {
                       border: "none",
                     }}
                     onClick={(e) => {
-                      e.preventDefault(); 
+                      e.preventDefault();
                       e.stopPropagation();
                       window.open(
                         toWhatsAppLink(donor.profile.phoneNumber),
