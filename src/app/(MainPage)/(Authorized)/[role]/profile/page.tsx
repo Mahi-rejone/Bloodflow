@@ -1,14 +1,9 @@
-import type { Metadata } from "next";
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useGetMeQuery } from "@/redux/feature/user/userApi"; 
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
-
-export const metadata: Metadata = {
-  title: "Donor Profile",
-};
-
-// Server Component pages read the request per-render, so always fetch fresh.
-export const dynamic = "force-dynamic";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -26,7 +21,6 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-// ---------- Types (mirrors prisma/schema/user.prisma + enum.prisma) ----------
 type BloodGroup =
   | "A_POS"
   | "A_NEG"
@@ -85,50 +79,8 @@ const ROLE_LABEL: Record<UserRole, string> = {
   ADMIN: "Admin",
   BLOOD_BANK_MANAGER: "Blood Bank Manager",
   HOSPITAL_REPRESENTATIVE: "Hospital Representative",
-  USER: "Donor",
+  USER: "Donor/Recipient",
 };
-
-// ---------- Server-side fetch ----------
-// The backend's `auth` middleware reads req.headers.authorization OR the
-// `accessToken` cookie. Because this runs server-to-server (Next.js server ->
-// Express server), CORS never comes into play — we just forward whatever
-// cookie the browser sent us, plus the token as a header for good measure.
-async function fetchProfile(): Promise<{
-  user: User | null;
-  error: string | null;
-}> {
-  const API_BASE_URL =
-    process.env.API_BASE_URL || "http://localhost:5000/api/v1";
-  const cookieStore = await cookies();
-  const headerStore = await headers();
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const cookieHeader = headerStore.get("cookie");
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/user/get-me`, {
-      headers: {
-        ...(accessToken ? { Authorization: accessToken } : {}),
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-      },
-      cache: "no-store",
-    });
-    const json = await res.json();
-
-    if (!res.ok || json.success === false) {
-      if (res.status === 401) {
-        redirect("/login");
-      }
-      return {
-        user: null,
-        error: json.errorMessage || json.message || "Failed to load profile.",
-      };
-    }
-
-    return { user: json.data, error: null };
-  } catch (err) {
-    return { user: null, error: "Could not reach the server." };
-  }
-}
 
 // ---------- Formatting helpers ----------
 function initials(name: string): string {
@@ -192,8 +144,27 @@ function DetailRow({
 }
 
 // ---------- Page ----------
-export default async function ProfilePage() {
-  const { user, error } = await fetchProfile();
+export default function ProfilePage() {
+  const { data, isLoading, error } = useGetMeQuery(undefined);
+  const router = useRouter();
+  const user = data?.data as User | undefined;
+
+  useEffect(() => {
+    if (error && "status" in error && error.status === 401) {
+      router.push("/login");
+    }
+  }, [error, router]);
+
+  if (isLoading) {
+    return (
+      <div
+        className={`${plexSans.variable} min-h-screen flex items-center justify-center bg-[#F7F6F3] px-4`}
+        style={{ fontFamily: "var(--font-plex-sans)" }}
+      >
+        <div className="text-sm text-[#5B554F]">Loading profile…</div>
+      </div>
+    );
+  }
 
   if (error || !user) {
     return (
@@ -205,9 +176,7 @@ export default async function ProfilePage() {
           <div className="mb-1 font-semibold text-[#7C1122]">
             Couldn&apos;t load this profile
           </div>
-          <p className="text-sm text-[#5B554F]">
-            {error || "Something went wrong."}
-          </p>
+          <p className="text-sm text-[#5B554F]">Something went wrong.</p>
           <a
             href="/profile"
             className="mt-4 inline-block rounded-full bg-[#1B1714] px-5 py-2.5 text-xs tracking-wide text-white"
@@ -419,11 +388,6 @@ export default async function ProfilePage() {
             <h3 className="mb-3.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#A6192E]">
               Account
             </h3>
-            <DetailRow label="User ID" value={user.id} mono />
-            <DetailRow
-              label="Role"
-              value={ROLE_LABEL[user.role] || user.role}
-            />
             <DetailRow label="Status" value={isActive ? "Active" : "Blocked"} />
             <DetailRow label="Joined" value={formatDate(user.createdAt)} />
           </div>

@@ -10,6 +10,7 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    
     verifyUser: builder.mutation({
       query: (payload) => ({
         url: "/user/verify",
@@ -18,6 +19,7 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
     resendVerificationCode: builder.mutation({
       query: (payload) => ({
         url: "/user/resend-verification",
@@ -25,6 +27,7 @@ const userApi = baseApi.injectEndpoints({
         body: payload,
       }),
     }),
+
     getMe: builder.query({
       query: () => ({
         url: "/user/get-me",
@@ -32,12 +35,39 @@ const userApi = baseApi.injectEndpoints({
       }),
       providesTags: ["User"],
     }),
+
+    getAllDonors: builder.query({
+      query: (filters: {
+        bloodGroup?: string;
+        district?: string;
+        town?: string;
+        state?: string;
+      }) => {
+        const params = new URLSearchParams();
+        if (filters.bloodGroup) params.set("bloodGroup", filters.bloodGroup);
+        if (filters.district) params.set("district", filters.district);
+        if (filters.town) params.set("town", filters.town);
+        if (filters.state) params.set("state", filters.state);
+        return `/user/donors?${params.toString()}`;
+      },
+      providesTags: ["User"],
+    }),
+
+    getDonorById: builder.query({
+      query: (id: string) => `/user/donors/${id}`,
+      providesTags: ["User"],
+    }),
   }),
 });
+
+
+
 
 export const {
   useCreateUserMutation,
   useVerifyUserMutation,
   useResendVerificationCodeMutation,
   useGetMeQuery,
+  useGetAllDonorsQuery,
+  useGetDonorByIdQuery,
 } = userApi;

@@ -57,16 +57,16 @@ export default function Navbar() {
     { href: "/requests", label: "Blood Requests" },
     { href: "/blogs", label: "Blogs & Events" },
   ];
+
   useEffect(() => {
     if (token) {
       setIsMounted(true);
     }
   }, [token]);
-  // if (!isMounted) {
-  //   return <div>Loading...</div>;
-  // }
+
   const handleLogout = async () => {
     setUserMenuOpen(false);
+    setMobileMenuOpen(false);
     setIsMounted(false);
     const result = await userLogout(undefined).unwrap();
     if (result?.success) {
@@ -81,6 +81,7 @@ export default function Navbar() {
       return router.push("/");
     }
   };
+
   let MenuData;
   switch (user?.role) {
     case user_role.admin:
@@ -92,6 +93,7 @@ export default function Navbar() {
     default:
       MenuData = <></>;
   }
+
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-app-border">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-4 md:grid md:grid-cols-[auto_1fr_auto] md:justify-normal">
@@ -250,40 +252,56 @@ export default function Navbar() {
             Request Blood
           </Link>
 
-          <div className="flex items-center justify-between pt-3 border-t border-app-border">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
-                {user?.username.charAt(0)}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-app-text">
-                  {user?.username}
-                </p>
-                <p className="text-xs text-app-text-light truncate">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
+          {/* Auth section: mirrors the desktop logic instead of assuming logged-in */}
+          {isMounted ? (
+            <>
+              <div className="flex items-center justify-between pt-3 border-t border-app-border">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("user/profile");
+                  }}
+                  className="flex items-center gap-3 text-left flex-1 min-w-0 rounded-lg -m-1 p-1 hover:bg-zinc-50 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold shrink-0">
+                    {user?.username?.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-app-text truncate">
+                      {user?.username}
+                    </p>
+                    <p className="text-xs text-app-text-light truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                </button>
 
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                router.push("/logout");
-              }}
-              className="text-red-600"
-              aria-label="Logout"
-            >
-              <LogOut size={20} />
-            </button>
-          </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-red-600 p-1 shrink-0"
+                  aria-label="Logout"
+                >
+                  <LogOut size={20} />
+                </button>
+              </div>
 
-          {user?.role === "ADMIN" && (
+              {user?.role === user_role.admin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-sm text-zinc-700"
+                >
+                  <LayoutDashboard size={16} /> Dashboard
+                </Link>
+              )}
+            </>
+          ) : (
             <Link
-              href="/admin"
+              href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-sm text-zinc-700"
+              className="block text-center bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
-              <LayoutDashboard size={16} /> Dashboard
+              Login
             </Link>
           )}
         </div>
