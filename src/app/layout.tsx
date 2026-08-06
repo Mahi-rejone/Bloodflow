@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Outfit, DM_Serif_Display } from "next/font/google";
+import { Outfit, DM_Serif_Display, Geist } from "next/font/google";
 import ReduxProvider from "@/redux/Providers";
+import { cn } from "@/lib/utils";
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const dmSerif = DM_Serif_Display({
   subsets: ["latin"],
@@ -28,7 +26,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${dmSerif.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", dmSerif.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">
         <ReduxProvider>{children}</ReduxProvider>

@@ -76,7 +76,7 @@ export default function MyPendingPage() {
               className="rounded-2xl border border-[#B3541E]/30 bg-white p-5"
             >
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#A6192E]">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-[#A6192E]">
                   {BLOOD_GROUP_LABEL[p.bloodRequest.bloodGroup] ||
                     p.bloodRequest.bloodGroup}
                 </span>

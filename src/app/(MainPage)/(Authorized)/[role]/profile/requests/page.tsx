@@ -90,7 +90,7 @@ export default function MyRequestsPage() {
                 className="rounded-2xl border border-[#E4E0D8] bg-white p-5"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#A6192E]">
+                  <span className="font-mono text-[11px] uppercase tracking-widest text-[#A6192E]">
                     {BLOOD_GROUP_LABEL[r.bloodGroup] || r.bloodGroup}
                   </span>
                   <span
