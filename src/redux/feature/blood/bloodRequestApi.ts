@@ -1,4 +1,3 @@
-
 import { baseApi } from "../../api/baseApi";
 
 const bloodRequestApi = baseApi.injectEndpoints({
@@ -19,7 +18,40 @@ const bloodRequestApi = baseApi.injectEndpoints({
       query: (id: string) => `/blood/${id}`,
       providesTags: ["BloodRequest"],
     }),
+    acceptBloodRequest: builder.mutation({
+      query: ({ id, units }: { id: string; units: number }) => ({
+        url: `/blood/${id}/accept`,
+        method: "POST",
+        body: { units },
+      }),
+      invalidatesTags: ["BloodRequest"],
+    }),
+    getCompletedRequestsCount: builder.query({
+      query: () => "/blood/completed-count",
+      providesTags: ["BloodRequest"],
+    }),
+    getMyDonations: builder.query({
+      query: () => "/blood/my-donations",
+      providesTags: ["BloodRequest"],
+    }),
+    getMyRequests: builder.query({
+      query: () => "/blood/my-requests",
+      providesTags: ["BloodRequest"],
+    }),
+    getMyPendingDonations: builder.query({
+      query: () => "/blood/my-pending-donations",
+      providesTags: ["BloodRequest"],
+    }),
   }),
 });
 
-export const { useCreateBloodRequestMutation, useGetPendingRequestsQuery, useGetBloodRequestByIdQuery } = bloodRequestApi;
+export const {
+  useCreateBloodRequestMutation,
+  useGetPendingRequestsQuery,
+  useGetBloodRequestByIdQuery,
+  useAcceptBloodRequestMutation,
+  useGetCompletedRequestsCountQuery,
+  useGetMyDonationsQuery,
+  useGetMyRequestsQuery,
+  useGetMyPendingDonationsQuery,
+} = bloodRequestApi;

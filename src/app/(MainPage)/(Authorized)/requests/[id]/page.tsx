@@ -1,8 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useGetBloodRequestByIdQuery } from "@/redux/feature/blood/bloodRequestApi";
-import { Card, Tag, Spin, Alert, Button, Avatar } from "antd";
+import {
+  useGetBloodRequestByIdQuery,
+  useAcceptBloodRequestMutation,
+} from "@/redux/feature/blood/bloodRequestApi";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCurrentUser } from "@/redux/feature/authSlice";
+import {
+  Card,
+  Tag,
+  Spin,
+  Alert,
+  Button,
+  Avatar,
+  Modal,
+  InputNumber,
+  message,
+} from "antd";
 import {
   UserOutlined,
   ArrowLeftOutlined,
@@ -21,7 +37,13 @@ const bloodGroupLabel = (value: string) =>
 export default function RequestDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const currentUser = useAppSelector(selectCurrentUser);
   const { data, isLoading, error } = useGetBloodRequestByIdQuery(id);
+  const [acceptBloodRequest, { isLoading: isAccepting }] =
+    useAcceptBloodRequestMutation();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [units, setUnits] = useState<number | null>(1);
 
   if (isLoading) {
     return (
@@ -46,6 +68,32 @@ export default function RequestDetailsPage() {
 
   const req = data?.data;
   if (!req) return null;
+
+  const isOwnRequest = currentUser?.id === req.requester?.id;
+  const canHelp = req.status === "PENDING" && !isOwnRequest;
+
+  const handleOpenModal = () => {
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
+    setUnits(1);
+    setModalOpen(true);
+  };
+
+const handleConfirm = async () => {
+  if (!units || units < 1) return;
+  try {
+    await acceptBloodRequest({ id, units }).unwrap();
+    message.success("Thanks! Your contribution has been recorded.");
+    setModalOpen(false);
+  } catch (err: any) {
+    message.error(
+      err?.data?.errorMessage ||
+        "Couldn't record your contribution. Try again.",
+    );
+  }
+};
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
@@ -113,16 +161,46 @@ export default function RequestDetailsPage() {
           </div>
         </div>
 
-        {/* <Button
-          type="primary"
-          block
-          size="large"
-          className="mt-6"
-          style={{ backgroundColor: "#dc2626" }}
-        >
-          I Can Help
-        </Button> */}
+        {canHelp && (
+          <Button
+            type="primary"
+            block
+            size="large"
+            className="mt-6"
+            style={{ backgroundColor: "#dc2626" }}
+            onClick={handleOpenModal}
+          >
+            I Can Help
+          </Button>
+        )}
+
+        {isOwnRequest && (
+          <p className="mt-6 text-center text-sm text-app-text-light">
+            This is your own request.
+          </p>
+        )}
       </Card>
+
+      <Modal
+        title="How many units can you give?"
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        onOk={handleConfirm}
+        okText="Confirm"
+        confirmLoading={isAccepting}
+      >
+        <p className="text-sm text-app-text-light mb-3">
+          {req.unitsNeeded} unit{req.unitsNeeded > 1 ? "s" : ""} still needed
+          for this request.
+        </p>
+        <InputNumber
+          min={1}
+          max={req.unitsNeeded}
+          value={units}
+          onChange={setUnits}
+          style={{ width: "100%" }}
+        />
+      </Modal>
     </div>
   );
 }

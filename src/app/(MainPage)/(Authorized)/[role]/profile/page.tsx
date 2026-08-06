@@ -1,6 +1,12 @@
 "use client";
 
-import { useGetMeQuery } from "@/redux/feature/user/userApi"; 
+import Link from "next/link";
+import { useGetMeQuery } from "@/redux/feature/user/userApi";
+import {
+  useGetMyDonationsQuery,
+  useGetMyRequestsQuery,
+  useGetMyPendingDonationsQuery,
+} from "@/redux/feature/blood/bloodRequestApi";
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 
 const fraunces = Fraunces({
@@ -141,6 +147,69 @@ function DetailRow({
   );
 }
 
+// ---------- Clickable activity stat card ----------
+function StatLinkCard({
+  label,
+  value,
+  href,
+  loading,
+}: {
+  label: string;
+  value: number | string;
+  href: string;
+  loading?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group block bg-white px-3 py-4.5 text-center transition-colors hover:bg-[#F7F6F3]"
+    >
+      <div
+        style={{ fontFamily: "var(--font-fraunces)" }}
+        className="text-[clamp(20px,4vw,26px)] font-semibold text-[#7C1122]"
+      >
+        {loading ? "—" : value}
+      </div>
+      <div className="mt-1 text-[11px] text-[#5B554F] transition-colors group-hover:text-[#1B1714]">
+        {label} →
+      </div>
+    </Link>
+  );
+}
+
+// ---------- Activity stats row (donations / requests / pending) ----------
+function ActivityStats() {
+  const { data: donations, isLoading: donationsLoading } =
+    useGetMyDonationsQuery(undefined);
+  const { data: requests, isLoading: requestsLoading } =
+    useGetMyRequestsQuery(undefined);
+  const { data: pending, isLoading: pendingLoading } =
+    useGetMyPendingDonationsQuery(undefined);
+
+  return (
+    <div className="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#E4E0D8] bg-[#E4E0D8] sm:grid-cols-3">
+      <StatLinkCard
+        label="Donations completed"
+        value={donations?.data?.length ?? 0}
+        loading={donationsLoading}
+        href={`/profile/donations`}
+      />
+      <StatLinkCard
+        label="Requests created"
+        value={requests?.data?.length ?? 0}
+        loading={requestsLoading}
+        href={`/profile/requests`}
+      />
+      <StatLinkCard
+        label="Pending contributions"
+        value={pending?.data?.length ?? 0}
+        loading={pendingLoading}
+        href={`/profile/pending`}
+      />
+    </div>
+  );
+}
+
 // ---------- Page ----------
 export default function ProfilePage() {
   const { data, isLoading, error } = useGetMeQuery(undefined);
@@ -202,7 +271,7 @@ export default function ProfilePage() {
               boxShadow: `0 0 0 3px ${isActive ? "rgba(47,110,78,0.15)" : "rgba(179,84,30,0.15)"}`,
             }}
           />
-         {ROLE_LABEL[user.role] || user.role}
+          {ROLE_LABEL[user.role] || user.role}
         </div>
 
         {/* Donor card */}
@@ -298,41 +367,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-
-        {/* Stats strip */}
-        <div className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#E4E0D8] bg-[#E4E0D8] sm:grid-cols-3">
-          <div className="bg-white px-3 py-4.5 text-center">
-            <div
-              style={{ fontFamily: "var(--font-fraunces)" }}
-              className="text-[clamp(20px,4vw,26px)] font-semibold text-[#7C1122]"
-            >
-              {profile?.numberOfDonation ?? 0}
-            </div>
-            <div className="mt-1 text-[11px] text-[#5B554F]">
-              Donations recorded
-            </div>
-          </div>
-          <div className="bg-white px-3 py-4.5 text-center">
-            <div
-              style={{ fontFamily: "var(--font-fraunces)" }}
-              className="text-[clamp(20px,4vw,26px)] font-semibold"
-            >
-              {isActive ? "Active" : "Blocked"}
-            </div>
-            <div className="mt-1 text-[11px] text-[#5B554F]">
-              Account status
-            </div>
-          </div>
-          <div className="col-span-2 bg-white px-3 py-4.5 text-center sm:col-span-1">
-            <div
-              style={{ fontFamily: "var(--font-fraunces)" }}
-              className="text-[clamp(20px,4vw,26px)] font-semibold"
-            >
-              {ROLE_LABEL[user.role] || user.role}
-            </div>
-            <div className="mt-1 text-[11px] text-[#5B554F]">Role</div>
-          </div>
-        </div>
+        {/* Activity strip — clickable, links to donation/request/pending pages */}
+        <ActivityStats />
 
         {/* Detail grid */}
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
