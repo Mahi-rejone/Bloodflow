@@ -8,6 +8,8 @@ import {
   useGetMyPendingDonationsQuery,
 } from "@/redux/feature/blood/bloodRequestApi";
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCurrentUser } from "@/redux/feature/authSlice";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -179,32 +181,32 @@ function StatLinkCard({
 
 // ---------- Activity stats row (donations / requests / pending) ----------
 function ActivityStats() {
+  const user = useAppSelector(selectCurrentUser);
   const { data: donations, isLoading: donationsLoading } =
     useGetMyDonationsQuery(undefined);
   const { data: requests, isLoading: requestsLoading } =
     useGetMyRequestsQuery(undefined);
   const { data: pending, isLoading: pendingLoading } =
     useGetMyPendingDonationsQuery(undefined);
-
   return (
     <div className="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#E4E0D8] bg-[#E4E0D8] sm:grid-cols-3">
       <StatLinkCard
         label="Donations completed"
         value={donations?.data?.length ?? 0}
         loading={donationsLoading}
-        href={`/profile/donations`}
+        href={`/${user?.role.toLowerCase()}/profile/donations`}
       />
       <StatLinkCard
         label="Requests created"
         value={requests?.data?.length ?? 0}
         loading={requestsLoading}
-        href={`/profile/requests`}
+        href={`/${user?.role.toLowerCase()}/profile/requests`}
       />
       <StatLinkCard
         label="Pending contributions"
         value={pending?.data?.length ?? 0}
         loading={pendingLoading}
-        href={`/profile/pending`}
+        href={`/${user?.role.toLowerCase()}/profile/pending`}
       />
     </div>
   );
