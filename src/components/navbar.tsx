@@ -95,7 +95,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white sticky top-0 z-50 border-b border-app-border">
+    <nav className="bg-white/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40 sticky top-0 z-50 border-b border-white/40 shadow-[0_1px_20px_rgba(0,0,0,0.04)]">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-4 md:grid md:grid-cols-[auto_1fr_auto] md:justify-normal">
         {/* Logo - leftmost */}
         <Link
@@ -127,7 +127,7 @@ export default function Navbar() {
                 placeholder="Search donors by name or blood group..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 bg-zinc-50 rounded-full border border-app-border focus:ring-2 focus:ring-app-primary/30 focus:outline-none transition-all"
+                className="w-full pl-8 pr-3 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-white/60 focus:ring-2 focus:ring-app-primary/30 focus:outline-none transition-all"
               />
             </div>
           </form>
@@ -137,7 +137,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4 justify-self-end">
           <Link
             href={`/requests/new`}
-            className="bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+            className="bg-app-primary/90 backdrop-blur-sm hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap shadow-sm"
           >
             Request Blood
           </Link>
@@ -145,7 +145,7 @@ export default function Navbar() {
           {isMounted ? (
             <button
               onClick={() => setIsNotificationsOpen(true)}
-              className="relative p-2 rounded-full hover:bg-zinc-100 transition-colors"
+              className="relative p-2 rounded-full hover:bg-white/50 transition-colors"
               aria-label="Notifications"
             >
               <BellIcon size={20} className="text-zinc-600" />
@@ -163,7 +163,7 @@ export default function Navbar() {
             {isMounted ? (
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-zinc-100 transition-colors"
+                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-white/50 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
                   {isMounted && user?.username.charAt(0)
@@ -175,15 +175,15 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+                className="bg-app-primary/90 backdrop-blur-sm hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap shadow-sm"
               >
                 Login
               </Link>
             )}
 
             {userMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-app-border rounded-lg shadow-lg py-2">
-                <div className="px-4 py-2 border-b border-app-border">
+              <div className="absolute right-0 mt-2 w-56 bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/50 border border-white/50 rounded-lg shadow-xl py-2">
+                <div className="px-4 py-2 border-b border-white/40">
                   <p className="text-sm font-medium text-app-text">
                     {user?.username}
                   </p>
@@ -196,7 +196,7 @@ export default function Navbar() {
 
                 <button
                   onClick={() => handleLogout()}
-                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-zinc-50"
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-white/50"
                 >
                   <LogOut size={16} /> Logout
                 </button>
@@ -217,7 +217,7 @@ export default function Navbar() {
 
       {/* Mobile menu panel */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-app-border bg-white px-4 py-4 space-y-4">
+        <div className="md:hidden border-t border-white/40 bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/50 px-4 py-4 space-y-4">
           <form onSubmit={handleSearch} className="sm:hidden">
             <div className="relative w-full">
               <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-zinc-500" />
@@ -226,7 +226,7 @@ export default function Navbar() {
                 placeholder="Search donors by name or blood group..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 bg-zinc-50 rounded-full border border-app-border focus:ring-2 focus:ring-app-primary/30 focus:outline-none transition-all"
+                className="w-full pl-8 pr-3 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-white/60 focus:ring-2 focus:ring-app-primary/30 focus:outline-none transition-all"
               />
             </div>
           </form>
@@ -247,7 +247,7 @@ export default function Navbar() {
           <Link
             href="/requests/new"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-center bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="block text-center bg-app-primary/90 backdrop-blur-sm hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             Request Blood
           </Link>
@@ -255,13 +255,13 @@ export default function Navbar() {
           {/* Auth section: mirrors the desktop logic instead of assuming logged-in */}
           {isMounted ? (
             <>
-              <div className="flex items-center justify-between pt-3 border-t border-app-border">
+              <div className="flex items-center justify-between pt-3 border-t border-white/40">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     router.push("user/profile");
                   }}
-                  className="flex items-center gap-3 text-left flex-1 min-w-0 rounded-lg -m-1 p-1 hover:bg-zinc-50 transition-colors"
+                  className="flex items-center gap-3 text-left flex-1 min-w-0 rounded-lg -m-1 p-1 hover:bg-white/50 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold shrink-0">
                     {user?.username?.charAt(0)}
@@ -299,7 +299,7 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-center bg-app-primary hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="block text-center bg-app-primary/90 backdrop-blur-sm hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
             >
               Login
             </Link>

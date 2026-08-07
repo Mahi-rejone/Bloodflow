@@ -1,6 +1,10 @@
-const RequestForm = () => {
+import  AppSidebar  from "@/components/appSidebar";
+
+const adminDashboard = () => {
   return (
+    
     <section>
+      <AppSidebar />
       <div>
         <h3 className="text-center font-bold text-4xl"> Admin Dashboard</h3>
       </div>
@@ -8,4 +12,4 @@ const RequestForm = () => {
   );
 };
 
-export default RequestForm;
+export default adminDashboard;
