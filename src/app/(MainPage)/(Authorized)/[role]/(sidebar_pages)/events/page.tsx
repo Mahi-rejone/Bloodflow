@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Table, Button, Popconfirm, message, Alert, Spin } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
@@ -18,6 +18,7 @@ const STAFF_ROLES = ["ADMIN", "BLOOD_BANK_MANAGER", "HOSPITAL_REPRESENTATIVE"];
 
 export default function EventsPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const currentUser = useAppSelector(selectCurrentUser);
   const [mounted, setMounted] = useState(false);
 
@@ -137,7 +138,7 @@ export default function EventsPage() {
             All events across BloodFlow.
           </p>
         </div>
-        <Link href="/events/new">
+        <Link href={`${pathname}/new`}>
           <Button
             type="primary"
             icon={<PlusOutlined />}

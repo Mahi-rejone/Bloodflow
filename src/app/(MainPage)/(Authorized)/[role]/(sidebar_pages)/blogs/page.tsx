@@ -8,8 +8,10 @@ import { selectCurrentUser } from "@/redux/feature/authSlice";
 import { Card, Spin, Alert, Empty, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import EventBanner from "@/components/eventBanner";
+import { usePathname } from "next/navigation";
 
 export default function BlogsPage() {
+  const pathname = usePathname();
   const currentUser = useAppSelector(selectCurrentUser);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -35,7 +37,7 @@ export default function BlogsPage() {
           </p>
         </div>
         {canCreate && (
-          <Link href="/blogs/new">
+          <Link href={`${pathname}/new`}>
             <Button
               type="primary"
               icon={<PlusOutlined />}

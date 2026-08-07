@@ -1,8 +1,7 @@
 import  AppSidebar  from "@/components/appSidebar";
 
 const adminDashboard = () => {
-  return (
-    
+  return (  
     <section>
       <AppSidebar />
       <div>

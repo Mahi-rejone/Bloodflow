@@ -1,11 +1,8 @@
+"use client";
 import {
   Home,
   Inbox,
-  Calendar,
-  Search,
   Settings,
-  User2,
-  ChevronUp,
   Plus,
   Projector,
   ChevronDown,
@@ -14,9 +11,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
-  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
@@ -24,24 +19,20 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarSeparator,
 } from "./ui/sidebar";
 import Link from "next/link";
-import Image from "next/image";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCurrentUser } from "@/redux/feature/authSlice";
+import { user_role } from "@/const/user.const";
+import { sideBarRouteGenerator } from "@/utils/RouteGeneratior";
+import { adminSidebarRoute } from "@/routes/admin.route";
+import { userSidebarRoute } from "@/routes/user.route";
 
 const items = [
   {
@@ -63,6 +54,24 @@ const items = [
 ];
 
 const AppSidebar = () => {
+  const user = useAppSelector(selectCurrentUser);
+  let SidebarMenuData;
+  switch (user?.role) {
+    case user_role.admin:
+      SidebarMenuData = sideBarRouteGenerator(
+        user_role.admin.toLowerCase(),
+        adminSidebarRoute,
+      );
+      break;
+    case user_role.user:
+      SidebarMenuData = sideBarRouteGenerator(
+        user_role.user.toLowerCase(),
+        userSidebarRoute,
+      );
+      break;
+    default:
+      SidebarMenuData = <></>;
+  }
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -133,67 +142,7 @@ const AppSidebar = () => {
           </SidebarGroup>
         </Collapsible>
         {/* NESTED */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Blogs & Events</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/#">
-                    <Projector />
-                    Blogs
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/blogs">
-                        <Plus />
-                        See all Blogs
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/blogs/new">
-                        <Plus />
-                        Add a new Blog
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/#">
-                    <Projector />
-                    Events
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/events">
-                        <Plus />
-                        See all Events
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/events/new">
-                        <Plus />
-                        Add a new Event
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {SidebarMenuData}
       </SidebarContent>
       {/* <SidebarFooter>
         <SidebarMenu>

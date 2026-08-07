@@ -1,5 +1,5 @@
-import { UserIcon } from "lucide-react";
-const userRoute = [
+import { Projector, TableIcon, UserIcon } from "lucide-react";
+export const userRoute = [
   {
     name: "Profile",
     path: "/profile",
@@ -7,4 +7,32 @@ const userRoute = [
   },
 ];
 
-export default userRoute;
+export const userSidebarRoute = [
+  {
+    label: "Blogs & Events",
+    children: [
+      {
+        label: "Blogs",
+        icon: <Projector />,
+        grandChild: [
+          {
+            name: "See all Blogs",
+            path: "/blogs",
+            icon: <TableIcon />,
+          },
+        ],
+      },
+      {
+        label: "Events",
+        icon: <Projector />,
+        grandChild: [
+          {
+            name: "See all Events",
+            path: "/events",
+            icon: <TableIcon />,
+          },
+        ],
+      },
+    ],
+  },
+];

@@ -22,10 +22,10 @@ import {
 } from "@/redux/feature/authSlice";
 import { useLogOutMutation } from "@/redux/feature/auth/authApi";
 import Swal from "sweetalert2";
-import RouteGenerator from "@/utils/RouteGeneratior";
-import adminRoute from "@/routes/admin.route";
+import { RouteGenerator } from "@/utils/RouteGeneratior";
 import { user_role } from "@/const/user.const";
-import userRoute from "@/routes/user.route";
+import { userRoute } from "@/routes/user.route";
+import { adminRoute } from "@/routes/admin.route";
 
 export default function Navbar() {
   const user = useAppSelector(selectCurrentUser);
