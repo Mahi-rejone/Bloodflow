@@ -18,6 +18,10 @@ const bloodRequestApi = baseApi.injectEndpoints({
       query: (id: string) => `/blood/${id}`,
       providesTags: ["BloodRequest"],
     }),
+    getBloodRequestByIdForPending: builder.query({
+      query: (id: string) => `user/profile/pending/${id}`,
+      providesTags: ["BloodRequest"],
+    }),
     acceptBloodRequest: builder.mutation({
       query: ({ id, units }: { id: string; units: number }) => ({
         url: `/blood/${id}/accept`,
@@ -25,6 +29,24 @@ const bloodRequestApi = baseApi.injectEndpoints({
         body: { units },
       }),
       invalidatesTags: ["BloodRequest"],
+    }),
+    verifyDonationOtp: builder.mutation({
+      query: (payload: { donationId: string; otp: string }) => ({
+        url: "/blood/verify-otp",
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["BloodRequest"],
+    }),
+
+    getContributionsForRequest: builder.query({
+      query: (requestId: string) => `/blood/${requestId}/contributions`,
+      providesTags: ["BloodRequest"],
+    }),
+
+    getMyContribution: builder.query({
+      query: (requestId: string) => `/blood/${requestId}/my-contribution`,
+      providesTags: ["BloodRequest"],
     }),
     getCompletedRequestsCount: builder.query({
       query: () => "/blood/completed-count",
@@ -54,4 +76,8 @@ export const {
   useGetMyDonationsQuery,
   useGetMyRequestsQuery,
   useGetMyPendingDonationsQuery,
+  useVerifyDonationOtpMutation,
+  useGetContributionsForRequestQuery,
+  useGetMyContributionQuery,
+  useGetBloodRequestByIdForPendingQuery,
 } = bloodRequestApi;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetMyPendingDonationsQuery } from "@/redux/feature/blood/bloodRequestApi";
+import Link from "next/link";
 
 const BLOOD_GROUP_LABEL: Record<string, string> = {
   A_POS: "A+",
@@ -71,9 +72,10 @@ export default function MyPendingPage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {pending.map((p) => (
-            <div
+            <Link
               key={p.id}
-              className="rounded-2xl border border-[#B3541E]/30 bg-white p-5"
+              href={`/${p.id}`}
+              className="block rounded-2xl border border-[#B3541E]/30 bg-white p-5 transition-shadow hover:shadow-md"
             >
               <div className="mb-2 flex items-center justify-between">
                 <span className="font-mono text-[11px] uppercase tracking-widest text-[#A6192E]">
@@ -105,7 +107,7 @@ export default function MyPendingPage() {
                   {p.unitDonated} unit(s)
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
