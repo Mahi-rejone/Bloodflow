@@ -2,6 +2,7 @@
 
 import { useGetMyPendingDonationsQuery } from "@/redux/feature/blood/bloodRequestApi";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const BLOOD_GROUP_LABEL: Record<string, string> = {
   A_POS: "A+",
@@ -42,9 +43,9 @@ interface PendingDonation {
 }
 
 export default function MyPendingPage() {
+  const pathname = usePathname();
   const { data, isLoading, error } = useGetMyPendingDonationsQuery(undefined);
   const pending: PendingDonation[] = data?.data ?? [];
-
   return (
     <div className="min-h-screen bg-[#F7F6F3] px-4 py-10 sm:py-12">
       <div className="mx-auto w-full max-w-3xl">
@@ -74,7 +75,7 @@ export default function MyPendingPage() {
           {pending.map((p) => (
             <Link
               key={p.id}
-              href={`/${p.id}`}
+              href={`${pathname}/${p.id}`}
               className="block rounded-2xl border border-[#B3541E]/30 bg-white p-5 transition-shadow hover:shadow-md"
             >
               <div className="mb-2 flex items-center justify-between">
