@@ -103,7 +103,7 @@ export default function MyRequestsPage() {
           const style = STATUS_STYLE[r.status] ?? STATUS_STYLE.PENDING;
 
           const donatedUnits = r.donationHistory.reduce((sum, donation) => {
-            return donation.status === "COMPLETED"
+            return donation.status === "CONFIRMED"
               ? sum + donation.unitDonated
               : sum;
           }, 0);
