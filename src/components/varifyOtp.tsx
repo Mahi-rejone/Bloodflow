@@ -1,18 +1,21 @@
 // New component: src/components/VerifyOtpModal.tsx
 "use client";
 
-import { useState } from "react";
 import { Modal, Input, Button, message } from "antd";
 import { useVerifyDonationOtpMutation } from "@/redux/feature/blood/bloodRequestApi";
+import { useState } from "react";
+
 
 export default function VerifyOtpModal({
   open,
   onClose,
   donationId,
+  onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   donationId: string;
+  onSuccess?: () => void;
 }) {
   const [otp, setOtp] = useState("");
   const [verifyOtp, { isLoading }] = useVerifyDonationOtpMutation();
@@ -23,6 +26,7 @@ export default function VerifyOtpModal({
       message.success("Donation verified — thank you!");
       setOtp("");
       onClose();
+      onSuccess?.();
     } catch (err: any) {
       message.error(err?.data?.errorMessage || "Couldn't verify code");
     }

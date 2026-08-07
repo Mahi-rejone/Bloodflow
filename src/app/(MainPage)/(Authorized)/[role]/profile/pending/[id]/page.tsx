@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetMyPendingDonationByIdQuery } from "@/redux/feature/blood/bloodRequestApi";
 import { Card, Tag, Spin, Alert, Button, Avatar } from "antd";
@@ -9,17 +9,22 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import { HospitalIcon, MapPinIcon, ClockIcon } from "lucide-react";
+import VerifyOtpModal from "@/components/varifyOtp";
 
 const bloodGroupLabel = (value?: string) =>
   value ? value.replace("_POS", "+").replace("_NEG", "-") : "-";
 
 export default function RequestDetailsPage() {
+  const [verifyOpen, setVerifyOpen] = useState(false);
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const { data, isLoading, error } = useGetMyPendingDonationByIdQuery(id, {
-    skip: !id,
-  });
+  const { data, isLoading, error, refetch } = useGetMyPendingDonationByIdQuery(
+    id,
+    {
+      skip: !id,
+    },
+  );
 
   if (isLoading) {
     return (
@@ -34,7 +39,7 @@ export default function RequestDetailsPage() {
       <div className="max-w-2xl mx-auto mt-12 px-4">
         <Alert
           type="error"
-          message="Couldn't load donation details"
+          title="Couldn't load donation details"
           description="The donation may not exist or you don't have permission to view it."
           showIcon
         />
@@ -166,9 +171,26 @@ export default function RequestDetailsPage() {
               <strong>Status:</strong>{" "}
               <Tag color={statusColor}>{donation.status}</Tag>
             </p>
+            {donation.status === "IN_PROGRESS" && (
+              <div className="mt-6">
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => setVerifyOpen(true)}
+                >
+                  Verify Donation OTP
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </Card>
+      <VerifyOtpModal
+        open={verifyOpen}
+        onClose={() => setVerifyOpen(false)}
+        donationId={id}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
