@@ -10,7 +10,7 @@ import { logout, setCredentials } from "../feature/authSlice";
 import Swal from "sweetalert2";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:5000/api/v1",
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   credentials: "include",
 
   prepareHeaders: (headers) => {
