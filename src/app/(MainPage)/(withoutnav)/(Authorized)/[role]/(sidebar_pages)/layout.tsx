@@ -2,7 +2,7 @@ import AppSidebar  from "@/components/appSidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AdminNavbar from "@/components/adminNavbar";
 
-export default async function AuthorizedLayout({
+export default async function SidebarLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -12,7 +12,8 @@ export default async function AuthorizedLayout({
       <AppSidebar />
       <SidebarInset>
         <AdminNavbar />
-        {children}</SidebarInset>
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }

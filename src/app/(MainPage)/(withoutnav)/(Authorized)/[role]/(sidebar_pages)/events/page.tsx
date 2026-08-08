@@ -4,8 +4,9 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Table, Button, Popconfirm, message, Alert, Spin } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Popconfirm, message, Alert, Spin, Empty } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 import {
   useGetAllEventsQuery,
   useDeleteEventMutation,
@@ -15,6 +16,15 @@ import { selectCurrentUser } from "@/redux/feature/authSlice";
 import { canModify } from "@/utils/canModify";
 
 const STAFF_ROLES = ["ADMIN", "BLOOD_BANK_MANAGER", "HOSPITAL_REPRESENTATIVE"];
+
+interface EventItem {
+  id: string;
+  title: string;
+  location: string;
+  eventDate: string;
+  organizerId: string;
+  organizer?: { fullName?: string; username?: string };
+}
 
 export default function EventsPage() {
   const router = useRouter();
@@ -64,66 +74,68 @@ export default function EventsPage() {
     );
   }
 
-  const events = data?.data ?? [];
+  const events: EventItem[] = data?.data ?? [];
 
-  const columns = [
+  const columns: ColumnsType<EventItem> = [
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (title: string, record: any) => (
-        <Link
-          href={`/events/${record.id}`}
-          className="text-app-primary font-medium hover:underline"
-        >
-          {title}
-        </Link>
+      render: (title: string) => (
+        <span className="font-semibold text-app-text">{title}</span>
       ),
     },
     {
       title: "Location",
       dataIndex: "location",
       key: "location",
+      responsive: ["md"],
+      render: (location: string) => (
+        <span className="text-app-text-light">{location}</span>
+      ),
     },
     {
       title: "Date",
       dataIndex: "eventDate",
       key: "eventDate",
+      width: 200,
       render: (date: string) =>
         new Date(date).toLocaleString(undefined, {
           dateStyle: "medium",
           timeStyle: "short",
         }),
-      sorter: (a: any, b: any) =>
+      sorter: (a, b) =>
         new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
     },
     {
       title: "Organizer",
       key: "organizer",
-      render: (_: any, record: any) =>
-        record.organizer?.fullName || record.organizer?.username,
+      width: 180,
+      render: (_, record) =>
+        record.organizer?.fullName || record.organizer?.username || "—",
     },
     {
-      title: "Actions",
+      title: "",
       key: "actions",
-      render: (_: any, record: any) => {
+      width: 60,
+      render: (_, record) => {
         const editable = canModify(currentUser, record.organizerId);
         if (!editable) return null;
         return (
-          <div className="flex gap-2">
-            <Link href={`/events/${record.id}/edit`}>
-              <Button size="small" icon={<EditOutlined />} />
-            </Link>
-            <Popconfirm
-              title="Delete this event?"
-              description="This can't be undone."
-              onConfirm={() => handleDelete(record.id)}
-              okText="Delete"
-              okButtonProps={{ danger: true, loading: isDeleting }}
-            >
-              <Button size="small" icon={<DeleteOutlined />} danger />
-            </Popconfirm>
-          </div>
+          <Popconfirm
+            title="Delete this event?"
+            description="This can't be undone."
+            onConfirm={() => handleDelete(record.id)}
+            okText="Delete"
+            okButtonProps={{ danger: true, loading: isDeleting }}
+          >
+            <Button
+              size="small"
+              icon={<DeleteOutlined />}
+              danger
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Popconfirm>
         );
       },
     },
@@ -149,20 +161,29 @@ export default function EventsPage() {
         </Link>
       </div>
 
-      {isLoading && (
-        <div className="flex justify-center py-24">
-          <Spin size="large" />
-        </div>
-      )}
+      {error && <Alert type="error" title="Couldn't load events" showIcon />}
 
-      {error && <Alert type="error" message="Couldn't load events" showIcon />}
-
-      {!isLoading && !error && (
-        <Table
-          dataSource={events}
-          columns={columns}
+      {!error && (
+        <Table<EventItem>
           rowKey="id"
-          pagination={{ pageSize: 10 }}
+          columns={columns}
+          dataSource={events}
+          loading={isLoading}
+          locale={{
+            emptyText: <Empty description="No events yet" className="py-16" />,
+          }}
+          pagination={{ pageSize: 10, hideOnSinglePage: true }}
+          onRow={(record) => ({
+            onClick: () => {
+              if (canModify(currentUser, record.organizerId)) {
+                router.push(`${pathname}/${record.id}/edit`);
+              } else {
+                router.push(`${pathname}/${record.id}`);
+              }
+            },
+            className: "cursor-pointer",
+          })}
+          className="rounded-2xl overflow-hidden border border-app-border"
         />
       )}
     </div>

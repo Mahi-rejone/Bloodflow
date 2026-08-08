@@ -19,7 +19,7 @@ export default function NewBlogPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="w-full max-w-2xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-app-text mb-8">New Blog</h1>
       <Form layout="vertical" onFinish={onFinish}>
         <Form.Item

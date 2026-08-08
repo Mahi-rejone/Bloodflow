@@ -93,7 +93,7 @@ const AdminNavbar = () => {
                 className="relative h-10 w-10 rounded-full p-0"
               >
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/avatar.png" />
+                  <AvatarImage src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThS6wt6VR_3q5iRfGKfMBgNaB_LpDDw0hvivE2Tnp5lw&s=10" />
 
                   <AvatarFallback>
                     {mounted ? user?.username?.slice(0, 2).toUpperCase() : ""}

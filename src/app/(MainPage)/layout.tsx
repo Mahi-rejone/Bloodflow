@@ -1,19 +1,16 @@
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export default function RootLayout({
+export default function WithNavLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <TooltipProvider>
-        <div>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-        </div>
+      <div>
+        <main className="min-h-screen">{children}</main>
+      </div>
     </TooltipProvider>
   );
 }
