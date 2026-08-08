@@ -167,6 +167,14 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    adminCreateUser: builder.mutation({
+      query: (payload) => ({
+        url: "/user/admin-create-user",
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -180,4 +188,5 @@ export const {
   useGetAllUsersQuery,
   useGetSingleUserQuery,
   useDeleteUserMutation,
+  useAdminCreateUserMutation,
 } = userApi;
