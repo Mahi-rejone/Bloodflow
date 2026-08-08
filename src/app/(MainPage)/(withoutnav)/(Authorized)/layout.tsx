@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import UrlRedirect from "@/components/urlRedirect";
 import { cookies } from "next/headers";
 
@@ -7,9 +8,9 @@ export default async function AuthorizedLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const token = cookieStore.get('accessToken')?.value
-  if(!token){
-    return <UrlRedirect url="/login" key={1} />
+  const token = cookieStore.get("accessToken")?.value;
+  if (!token) {
+    return <UrlRedirect url="/login" key={1} />;
   }
   return (
     <div>

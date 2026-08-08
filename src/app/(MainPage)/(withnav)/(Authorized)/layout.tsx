@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import UrlRedirect from "@/components/urlRedirect";
 import { cookies } from "next/headers";
 
