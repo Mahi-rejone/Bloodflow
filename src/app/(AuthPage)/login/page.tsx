@@ -12,20 +12,26 @@ import Swal from "sweetalert2";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const router = useRouter();
-  const [login, {isLoading, error}] = useLoginMutation()
+  const [login, { isLoading, error }] = useLoginMutation();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (e: any) => {
-    
     try {
       setLoading(true);
       e.preventDefault();
       const email = e.target.email.value;
       const password = e.target.password.value;
-      const result = await login({email, password}).unwrap()
-      if(result.success){
+      const result = await login({ email, password }).unwrap();
+      if (result.success) {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: result.data }),
+        });
         const userData = decodeToken(result.data) as TUser;
         dispatch(
           setCredentials({
@@ -33,9 +39,9 @@ export default function Login() {
               id: userData!.id,
               email: userData!.email,
               role: userData!.role,
-              username:userData!.username,
+              username: userData!.username,
             },
-            accessToken: result.data
+            accessToken: result.data,
           }),
         );
         Swal.fire({
@@ -47,10 +53,10 @@ export default function Login() {
         });
         router.push("/");
       }
-   
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error:any) {
-      if (error?.data?.errorMessage){
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error?.data?.errorMessage) {
         setLoading(false);
         return Swal.fire({
           icon: "error",
@@ -58,11 +64,11 @@ export default function Login() {
           text: error?.data?.errorMessage,
         });
       }
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error?.message,
-        });
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error?.message,
+      });
       setLoading(false);
     }
   };
