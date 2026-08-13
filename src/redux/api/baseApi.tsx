@@ -91,7 +91,15 @@ const baseQueryWithRefreshToken: BaseQueryFn<
       // 6. Refresh failed
       // ------------------------------------------------
 
+      await fetch("api/auth/session_out",{
+        method:"POST",
+        headers: {
+            "Content-Type": "application/json",
+          },
+      });
       api.dispatch(logout());
+
+
 
       // Only access window in the browser
       if (typeof window !== "undefined") {

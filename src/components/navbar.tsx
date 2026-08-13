@@ -70,6 +70,12 @@ export default function Navbar() {
     setIsMounted(false);
     const result = await userLogout(undefined).unwrap();
     if (result?.success) {
+      await fetch("api/auth/session_out",{
+        method:"POST",
+        headers: {
+            "Content-Type": "application/json",
+          },
+      });
       Swal.fire({
         position: "top-end",
         icon: "success",
