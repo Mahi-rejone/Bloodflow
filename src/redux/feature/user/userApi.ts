@@ -195,10 +195,26 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    // ---------------------------------------------
+    // UPDATE USER BY ADMIN
+    // ---------------------------------------------
+
     adminCreateUser: builder.mutation({
       query: (payload) => ({
         url: "/user/admin-create-user",
         method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    updateUserByAdmin: builder.mutation<
+      { data: UserItem },
+      { id: string; status?: "ACTIVE" | "BLOCK"; isVerified?: boolean }
+    >({
+      query: ({ id, ...payload }) => ({
+        url: `/user/${id}/admin-update`,
+        method: "PATCH",
         body: payload,
       }),
       invalidatesTags: ["User"],
@@ -218,4 +234,5 @@ export const {
   useGetSingleUserQuery,
   useDeleteUserMutation,
   useAdminCreateUserMutation,
+  useUpdateUserByAdminMutation,
 } = userApi;

@@ -11,11 +11,14 @@ import {
   Spin,
   Alert,
   Avatar,
+  Switch,
+  Select,
 } from "antd";
 import { DeleteOutlined, UserOutlined } from "@ant-design/icons";
 import {
   useGetSingleUserQuery,
   useDeleteUserMutation,
+  useUpdateUserByAdminMutation,
 } from "@/redux/feature/user/userApi";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -37,6 +40,8 @@ export default function UserDetailPage() {
   const router = useRouter();
   const { data, isLoading, error } = useGetSingleUserQuery(id);
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const [updateUserByAdmin, { isLoading: isUpdating }] =
+    useUpdateUserByAdminMutation();
 
   const handleDelete = async () => {
     try {
@@ -45,6 +50,24 @@ export default function UserDetailPage() {
       router.push("/admin/users");
     } catch (err: any) {
       message.error(err?.data?.errorMessage || "Couldn't delete user");
+    }
+  };
+
+  const handleStatusChange = async (status: "ACTIVE" | "BLOCK") => {
+    try {
+      await updateUserByAdmin({ id, status }).unwrap();
+      message.success("Status updated");
+    } catch (err: any) {
+      message.error(err?.data?.errorMessage || "Couldn't update status");
+    }
+  };
+
+  const handleVerifiedToggle = async (isVerified: boolean) => {
+    try {
+      await updateUserByAdmin({ id, isVerified }).unwrap();
+      message.success(isVerified ? "User verified" : "Verification revoked");
+    } catch (err: any) {
+      message.error(err?.data?.errorMessage || "Couldn't update verification");
     }
   };
 
@@ -104,9 +127,24 @@ export default function UserDetailPage() {
             {user.username}
           </Descriptions.Item>
           <Descriptions.Item label="Verified">
-            {user.isVerified ? "Yes" : "No"}
+            <Switch
+              checked={user.isVerified}
+              onChange={handleVerifiedToggle}
+              loading={isUpdating}
+            />
           </Descriptions.Item>
-          <Descriptions.Item label="Status">{user.status}</Descriptions.Item>
+          <Descriptions.Item label="Status">
+            <Select
+              value={user.status as "ACTIVE" | "BLOCK"}
+              onChange={handleStatusChange}
+              loading={isUpdating}
+              style={{ width: 140 }}
+              options={[
+                { value: "ACTIVE", label: "Active" },
+                { value: "BLOCK", label: "Blocked" },
+              ]}
+            />
+          </Descriptions.Item>
           {user.profile?.bloodGroup && (
             <Descriptions.Item label="Blood Group">
               {user.profile.bloodGroup}

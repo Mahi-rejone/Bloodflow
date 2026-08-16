@@ -43,7 +43,8 @@ const quickLinks = [
 
 const support = [
   { label: "My Account", href: "user/profile" },
-  { label: "Request History", href: "/requests" },
+  { label: "Privacy Policy", href: "/privacy&policy" },
+  { label: "Terms of Service", href: "/terms_of_sevice" },
   { label: "Eligibility Guide", href: "/eligibility" },
   { label: "Help Center", href: "/help" },
 ];
@@ -51,7 +52,7 @@ const support = [
 export default function Footer() {
   return (
     <footer className="w-full bg-app-text text-white">
-      <div className="mx-auto max-w-[1440px] px-8 py-16 lg:px-16">
+      <div className="mx-auto max-w-360 px-8 py-16 lg:px-16">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] lg:gap-16">
           {/* Brand */}
           <div>
