@@ -1,4 +1,5 @@
 "use client";
+
 import { useLoginMutation } from "@/redux/feature/auth/authApi";
 import { setCredentials, TUser } from "@/redux/feature/authSlice";
 import { decodeToken } from "@/utils/decodeJwt";
@@ -9,72 +10,134 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import { Button, Form, Input } from "antd";
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
   const router = useRouter();
-  const [login, { isLoading, error }] = useLoginMutation();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = async (e: any) => {
+  const [login] = useLoginMutation();
+
+  const handleVerifyEmail = async (email: string) => {
+    const result = await Swal.fire({
+      title: "Please confirm your email address",
+      icon: "info",
+      confirmButtonText: "Verify Now",
+      cancelButtonText: "Cancel",
+      showCancelButton: true,
+      showCloseButton: true,
+    });
+
+    if (result.isConfirmed) {
+      localStorage.setItem("verifyEmail", email);
+      router.push("/verify");
+    }
+  };
+
+  const handleSubmit = async (values: LoginFormValues) => {
     try {
       setLoading(true);
-      e.preventDefault();
-      const email = e.target.email.value;
-      const password = e.target.password.value;
-      const result = await login({ email, password }).unwrap();
-      if (result.success) {
-        await fetch("/api/auth/session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token: result.data }),
-        });
-        const userData = decodeToken(result.data) as TUser;
-        dispatch(
-          setCredentials({
-            user: {
-              id: userData!.id,
-              email: userData!.email,
-              role: userData!.role,
-              username: userData!.username,
-            },
-            accessToken: result.data,
-          }),
-        );
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Successfully Logged In.",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        router.push("/");
+
+      const { email, password } = values;
+
+      const result = await login({
+        email,
+        password,
+      }).unwrap();
+
+      if (!result.success) {
+        throw new Error("Login failed. Please try again.");
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error?.data?.errorMessage) {
-        setLoading(false);
-        return Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error?.data?.errorMessage,
-        });
+      // Create server-side session
+      const sessionResponse = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: result.data,
+        }),
+      });
+
+      if (!sessionResponse.ok) {
+        throw new Error("Failed to create authentication session.");
       }
-      Swal.fire({
+
+      // Decode JWT
+      // decodeToken returns JwtPayload, so we explicitly tell
+      // TypeScript that our JWT contains the TUser properties.
+      const userData = decodeToken(result.data) as TUser | null;
+
+      if (!userData) {
+        throw new Error("Invalid authentication token.");
+      }
+
+      // Save user credentials in Redux
+      dispatch(
+        setCredentials({
+          user: {
+            id: userData.id,
+            email: userData.email,
+            role: userData.role,
+            username: userData.username,
+          },
+          accessToken: result.data,
+        }),
+      );
+
+      // Success message
+      await Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Successfully Logged In.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      router.push("/");
+    } catch (error: unknown) {
+      const err = error as {
+        data?: {
+          errorMessage?: string;
+        };
+        message?: string;
+      };
+
+      const errorMessage =
+        err?.data?.errorMessage ||
+        err?.message ||
+        "Something went wrong. Please try again.";
+
+      // Email verification required
+      if (errorMessage === "Please verify your email before logging in") {
+        await handleVerifyEmail(values.email);
+        return;
+      }
+
+      // Other errors
+      await Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: error?.message,
+        text: errorMessage,
       });
+    } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex">
-      {/* Left Side */}
+      {/* =========================
+          LEFT SIDE
+      ========================== */}
       <div className="hidden lg:flex lg:w-1/2 bg-app-dark relative items-center justify-center overflow-hidden">
         <Image
           className="absolute inset-0 object-cover w-full h-full opacity-10"
@@ -97,10 +160,14 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* =========================
+          RIGHT SIDE
+      ========================== */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-app-bg">
         <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-app-border">
-          {/* Logo */}
+          {/* =========================
+              LOGO
+          ========================== */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-6">
               <DropletsIcon className="text-app-primary" size={34} />
@@ -123,60 +190,77 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Email Address
-              </label>
+          {/* =========================
+              ANT DESIGN FORM
+          ========================== */}
+          <Form<LoginFormValues>
+            layout="vertical"
+            onFinish={handleSubmit}
+            requiredMark={false}
+            autoComplete="off"
+          >
+            {/* =========================
+                EMAIL
+            ========================== */}
+            <Form.Item
+              label={
+                <span className="text-sm font-medium text-app-text">
+                  Email Address
+                </span>
+              }
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email address",
+                },
+                {
+                  type: "email",
+                  message: "Please enter a valid email address",
+                },
+              ]}
+            >
+              <Input
+                size="large"
+                prefix={
+                  <MailIcon size={20} className="text-app-text-light mr-1" />
+                }
+                placeholder="you@example.com"
+                className="!rounded-lg"
+              />
+            </Form.Item>
 
-              <div className="relative">
-                <MailIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
+            {/* =========================
+                PASSWORD
+            ========================== */}
+            <Form.Item
+              label={
+                <span className="text-sm font-medium text-app-text">
+                  Password
+                </span>
+              }
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your password",
+                },
+              ]}
+            >
+              <Input.Password
+                size="large"
+                prefix={
+                  <LockIcon size={20} className="text-app-text-light mr-1" />
+                }
+                placeholder="Enter your password"
+                className="!rounded-lg"
+              />
+            </Form.Item>
 
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-app-text mb-2"
-              >
-                Password
-              </label>
-
-              <div className="relative">
-                <LockIcon
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-app-text-light"
-                  size={20}
-                />
-
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  placeholder="Enter your password"
-                  className="w-full pl-11 pr-4 py-3 border border-app-border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-primary focus:border-app-primary transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="flex justify-end">
+            {/* =========================
+                FORGOT PASSWORD
+            ========================== */}
+            <div className="flex justify-end -mt-2 mb-5">
               <Link
                 href="/forgot-password"
                 className="text-sm text-app-primary hover:text-app-primary-dark hover:underline"
@@ -185,15 +269,22 @@ export default function Login() {
               </Link>
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-app-primary hover:bg-app-primary-dark text-white py-3 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Signing In..." : "Sign In"}
-            </button>
-          </form>
+            {/* =========================
+                SUBMIT BUTTON
+            ========================== */}
+            <Form.Item className="!mb-0">
+              <Button
+                htmlType="submit"
+                type="primary"
+                size="large"
+                loading={loading}
+                block
+                className="!h-12 !rounded-lg !font-semibold !bg-app-primary hover:!bg-app-primary-dark"
+              >
+                {loading ? "Signing In..." : "Sign In"}
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
       </div>
     </div>

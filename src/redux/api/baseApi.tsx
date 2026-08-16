@@ -134,6 +134,7 @@ export const baseApi = createApi({
     "BloodDonationHistory",
     "Blog",
     "Event",
+    "Notification",
   ],
 
   endpoints: () => ({}),

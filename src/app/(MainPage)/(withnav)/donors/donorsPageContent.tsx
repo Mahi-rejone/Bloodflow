@@ -12,6 +12,7 @@ import {
   Avatar,
   Tag,
   Button,
+  Modal,
 } from "antd";
 import {
   PhoneOutlined,
@@ -22,6 +23,10 @@ import {
 import { MapPinIcon, DropletsIcon } from "lucide-react";
 import { toWhatsAppLink } from "@/utils/whatsapp";
 import Link from "next/link";
+import { useNotifyDonorsMutation } from "@/redux/feature/notification/notificationApi";
+import { message } from "antd";
+import { selectCurrentUser } from "@/redux/feature/authSlice";
+import { useAppSelector } from "@/redux/hooks";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -43,7 +48,10 @@ export default function DonorsPageContent({
   const [district, setDistrict] = useState("");
   const [town, setTown] = useState("");
   const [search, setSearch] = useState(initialSearch);
-
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
+  const [notifyDonors, { isLoading: isNotifying }] = useNotifyDonorsMutation();
+  const user = useAppSelector(selectCurrentUser);
   const { data, isLoading, error } = useGetAllDonorsQuery({
     bloodGroup: bloodGroup ? toBloodGroupEnum(bloodGroup) : undefined,
     state: state || undefined,
@@ -53,6 +61,39 @@ export default function DonorsPageContent({
   });
 
   const donors = data?.data ?? [];
+
+  const openNotifyModal = () => {
+    if (!user?.id) {
+      message.error("Unable to identify your profile.");
+      return;
+    }
+
+    const groupLabel = bloodGroup ? ` ${bloodGroup}` : "";
+    const locationLabel = district ? ` in ${district}` : "";
+
+    const profileLink = `${window.location.origin}/donors/${user.id}`;
+
+    setNotifyMessage(
+      `🚨 Urgent Blood Request
+      I urgently need${groupLabel} blood${locationLabel}.
+      If you are available to donate, please contact me.
+      View my profile:${profileLink}`,
+    );
+    setNotifyModalOpen(true);
+  };
+
+  const handleSendNotification = async () => {
+    try {
+      await notifyDonors({
+        message: notifyMessage,
+        donorIds: donors.map((d: any) => d.id),
+      }).unwrap();
+      message.success(`Notified ${donors.length} donor(s)`);
+      setNotifyModalOpen(false);
+    } catch (err: any) {
+      message.error(err?.data?.errorMessage || "Couldn't send notification");
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -108,6 +149,34 @@ export default function DonorsPageContent({
             style={{ maxWidth: 220 }}
           />
         </div>
+        {donors.length > 0 && (
+          <Button
+            type="primary"
+            className="mb-6"
+            style={{ backgroundColor: "#dc2626" }}
+            onClick={openNotifyModal}
+          >
+            Notify these {donors.length} donors
+          </Button>
+        )}
+
+        <Modal
+          title="Send a notification"
+          open={notifyModalOpen}
+          onCancel={() => setNotifyModalOpen(false)}
+          onOk={handleSendNotification}
+          okText="Send"
+          confirmLoading={isNotifying}
+        >
+          <p className="text-sm text-app-text-light mb-2">
+            This will be sent to all {donors.length} donors currently shown.
+          </p>
+          <Input.TextArea
+            rows={4}
+            value={notifyMessage}
+            onChange={(e) => setNotifyMessage(e.target.value)}
+          />
+        </Modal>
       </div>
 
       {isLoading && (

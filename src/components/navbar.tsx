@@ -11,7 +11,6 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
-  UserIcon,
   SearchIcon,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -26,6 +25,8 @@ import { RouteGenerator } from "@/utils/RouteGeneratior";
 import { user_role } from "@/const/user.const";
 import { userRoute } from "@/routes/user.route";
 import { adminRoute } from "@/routes/admin.route";
+import { useGetUnreadCountQuery } from "@/redux/feature/notification/notificationApi";
+import NotificationsPanel from "./NotificationsPanel";
 
 export default function Navbar() {
   const user = useAppSelector(selectCurrentUser);
@@ -33,37 +34,40 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const [userLogout] = useLogOutMutation();
 
-  const { notificationCount, setIsNotificationsOpen } = {
-    notificationCount: 3,
-    setIsNotificationsOpen: (_data: any) => {},
-  };
-
+  
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const router = useRouter();
-
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    skip: !isMounted || !user,
+    pollingInterval: 30000, 
+  });
+  const notificationCount = unreadData?.data?.count ?? 0;
+  
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/donors?q=${encodeURIComponent(searchQuery)}`);
     }
   };
-
+  
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/donors", label: "Find Donors" },
     { href: "/requests", label: "Blood Requests" },
     { href: "/blogs", label: "Blogs & Events" },
   ];
-
+  
   useEffect(() => {
     if (token) {
       setIsMounted(true);
     }
   }, [token]);
-
+  
   const handleLogout = async () => {
     setUserMenuOpen(false);
     setMobileMenuOpen(false);
@@ -73,8 +77,8 @@ export default function Navbar() {
       await fetch("api/auth/session_out",{
         method:"POST",
         headers: {
-            "Content-Type": "application/json",
-          },
+          "Content-Type": "application/json",
+        },
       });
       Swal.fire({
         position: "top-end",
@@ -87,27 +91,28 @@ export default function Navbar() {
       return router.push("/");
     }
   };
-
+  
   let MenuData;
   switch (user?.role) {
     case user_role.admin:
       MenuData = RouteGenerator(user_role.admin, adminRoute, setUserMenuOpen);
       break;
-    case user_role.user:
-      MenuData = RouteGenerator(user_role.user, userRoute, setUserMenuOpen);
-      break;
-    default:
-      MenuData = <></>;
-  }
-
-  return (
-    <nav className="bg-white/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40 sticky top-0 z-50 border-b border-white/40 shadow-[0_1px_20px_rgba(0,0,0,0.04)]">
+      case user_role.user:
+        MenuData = RouteGenerator(user_role.user, userRoute, setUserMenuOpen);
+        break;
+        default:
+          MenuData = <></>;
+        }
+        
+        return (
+  <>    
+          <nav className="bg-white/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40 sticky top-0 z-50 border-b border-white/40 shadow-[0_1px_20px_rgba(0,0,0,0.04)]">
       <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 gap-4 md:grid md:grid-cols-[auto_1fr_auto] md:justify-normal">
         {/* Logo - leftmost */}
         <Link
           href="/"
           className="flex items-center gap-2 text-[22px] font-medium shrink-0"
-        >
+          >
           <DropletsIcon size={28} className="text-app-primary" /> BloodFlow
         </Link>
 
@@ -116,9 +121,9 @@ export default function Navbar() {
           <div className="flex items-center gap-6 text-sm text-zinc-600 shrink-0">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
-                href={link.href}
-                className="hover:text-app-primary transition-colors whitespace-nowrap"
+              key={link.href}
+              href={link.href}
+              className="hover:text-app-primary transition-colors whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -134,7 +139,7 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-white/60 focus:ring-2 focus:ring-app-primary/30 focus:outline-none transition-all"
-              />
+                />
             </div>
           </form>
         </div>
@@ -144,15 +149,15 @@ export default function Navbar() {
           <Link
             href={`/requests/new`}
             className="bg-app-primary/90 backdrop-blur-sm hover:bg-app-primary-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap shadow-sm"
-          >
+            >
             Request Blood
           </Link>
 
           {isMounted ? (
             <button
-              onClick={() => setIsNotificationsOpen(true)}
-              className="relative p-2 rounded-full hover:bg-white/50 transition-colors"
-              aria-label="Notifications"
+            onClick={() => setIsNotificationsOpen(true)}
+            className="relative p-2 rounded-full hover:bg-white/50 transition-colors"
+            aria-label="Notifications"
             >
               <BellIcon size={20} className="text-zinc-600" />
               {notificationCount > 0 && (
@@ -168,8 +173,8 @@ export default function Navbar() {
           <div className="relative">
             {isMounted ? (
               <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-white/50 transition-colors"
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-white/50 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-app-primary/10 text-app-primary flex items-center justify-center text-sm font-semibold">
                   {isMounted && user?.username.charAt(0)
@@ -313,5 +318,11 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    <NotificationsPanel
+      open={isNotificationsOpen}
+      onClose={() => setIsNotificationsOpen(false)}
+    />
+  </>  
   );
 }
+  

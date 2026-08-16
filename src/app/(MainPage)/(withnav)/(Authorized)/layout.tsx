@@ -9,7 +9,6 @@ export default async function AuthorizedLayout({
 }>) {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
-  console.log(token);
   if (!token) {
     return <UrlRedirect url="/login" key={1} />;
   }

@@ -25,6 +25,21 @@ export interface UserItem {
   profile?: UserProfile;
 }
 
+export interface UpdateMyProfilePayload {
+  currentPassword: string;
+
+  status?: "ACTIVE" | "BLOCK";
+
+  phoneNumber?: string;
+  guardianNumber?: string;
+
+  state?: string;
+  district?: string;
+  town?: string;
+  address?: string;
+  img?: string;
+}
+
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ---------------------------------------------
@@ -78,6 +93,19 @@ export const userApi = baseApi.injectEndpoints({
       }),
 
       providesTags: ["User"],
+    }),
+
+    updateMyProfile: builder.mutation<
+      { data: UserItem },
+      UpdateMyProfilePayload
+    >({
+      query: (payload) => ({
+        url: "/user/update-profile",
+        method: "PATCH",
+        body: payload,
+      }),
+
+      invalidatesTags: ["User"],
     }),
 
     // ---------------------------------------------
@@ -183,6 +211,7 @@ export const {
   useVerifyUserMutation,
   useResendVerificationCodeMutation,
   useGetMeQuery,
+  useUpdateMyProfileMutation,
   useGetAllDonorsQuery,
   useGetDonorByIdQuery,
   useGetAllUsersQuery,

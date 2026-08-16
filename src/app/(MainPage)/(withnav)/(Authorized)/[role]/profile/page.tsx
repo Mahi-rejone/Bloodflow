@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { FaEdit } from "react-icons/fa";
 import { useGetMeQuery } from "@/redux/feature/user/userApi";
 import {
   useGetMyDonationsQuery,
@@ -10,6 +11,7 @@ import {
 import { Fraunces, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCurrentUser } from "@/redux/feature/authSlice";
+import { Button } from "antd";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -265,15 +267,13 @@ export default function ProfilePage() {
     >
       <div className="mx-auto w-full max-w-3xl">
         {/* Eyebrow */}
-        <div className="mb-4 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-[#5B554F]">
-          <span
-            className="h-1.75 w-1.75 shrink-0 rounded-full"
-            style={{
-              background: isActive ? "#2F6E4E" : "#B3541E",
-              boxShadow: `0 0 0 3px ${isActive ? "rgba(47,110,78,0.15)" : "rgba(179,84,30,0.15)"}`,
-            }}
-          />
-          {ROLE_LABEL[user.role] || user.role}
+        <div className="mb-4 flex justify-end gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-[#5B554F]">
+          <Link href={`/${user.role.toLowerCase()}/profile/edit`}>
+            <Button>
+              <FaEdit />
+              Edit Profile
+            </Button>
+          </Link>
         </div>
 
         {/* Donor card */}
