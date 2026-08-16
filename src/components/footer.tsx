@@ -39,14 +39,15 @@ const quickLinks = [
   { label: "Donation Camps", href: "/camps" },
   { label: "Blood Banks", href: "/blood-banks" },
   { label: "Become a Donor", href: "/register" },
+  { label: "My Account", href: "user/profile" },
 ];
 
 const support = [
-  { label: "My Account", href: "user/profile" },
   { label: "Privacy Policy", href: "/privacy&policy" },
   { label: "Terms of Service", href: "/terms_of_sevice" },
   { label: "Eligibility Guide", href: "/eligibility" },
   { label: "Help Center", href: "/help" },
+  { label: "Contact Us", href: "/contact" }
 ];
 
 export default function Footer() {
