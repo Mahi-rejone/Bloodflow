@@ -2,18 +2,18 @@
 
 const MOSAIC_PHOTOS = [
   {
-    src: "/assets/about-1.jpg",
+    src: "/assets/about-2.jpeg",
     alt: "Volunteers at a BloodFlow donation drive",
   },
-  { src: "/assets/about-2.jpg", alt: "A donor smiling after giving blood" },
+  { src: "/assets/about-7.jpeg", alt: "A donor smiling after giving blood" },
   {
-    src: "/assets/about-3.jpg",
+    src: "/assets/about-4.jpeg",
     alt: "Group photo of donors at a campus drive",
   },
-  { src: "/assets/about-4.jpg", alt: "A nurse assisting a donor" },
-  { src: "/assets/about-5.jpg", alt: "Volunteers holding a BloodFlow banner" },
+  { src: "/assets/about-5.jpeg", alt: "A nurse assisting a donor" },
+  { src: "/assets/about-1.jpeg", alt: "Volunteers holding a BloodFlow banner" },
   {
-    src: "/assets/about-6.jpg",
+    src: "/assets/about-3.jpeg",
     alt: "Donors registering at a community event",
   },
 ];

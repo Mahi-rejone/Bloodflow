@@ -58,7 +58,7 @@ export default function RequestDetailsPage() {
       <div className="max-w-2xl mx-auto mt-12 px-4">
         <Alert
           type="error"
-          message="Couldn't load this request"
+          title="Couldn't load this request"
           description="It may have been fulfilled or removed."
           showIcon
         />

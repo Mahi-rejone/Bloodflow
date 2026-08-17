@@ -3,7 +3,6 @@ import BloodFactsGrid from "@/components/home/bloodfacts";
 import CallCenterBanner from "@/components/home/callcenterbanner";
 import ActionBanner from "@/components/home/cards";
 import HeroBanner from "@/components/home/heroBanner";
-import Image from "next/image";
 
 export default function Home() {
   return (

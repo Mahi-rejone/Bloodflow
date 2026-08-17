@@ -58,6 +58,7 @@ interface User {
   role: UserRole;
   createdAt: string;
   profile: UserProfile | null;
+  pendingRequestCount?: number;
 }
 
 const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
