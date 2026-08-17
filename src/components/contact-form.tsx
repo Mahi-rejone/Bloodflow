@@ -32,7 +32,6 @@ export function ContactForm() {
 
     try {
       const result = await createContact(formData).unwrap();
-
       if (result.success) {
         setSuccessMessage(result.message || "Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });

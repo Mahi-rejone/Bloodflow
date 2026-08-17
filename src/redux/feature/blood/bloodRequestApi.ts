@@ -68,6 +68,10 @@ const bloodRequestApi = baseApi.injectEndpoints({
       query: (id: string) => `/blood/my-pending-donations/${id}`,
       providesTags: ["BloodRequest"],
     }),
+    getLatestFive: builder.query({
+      query: () => `/blood/get-latest-five`,
+      providesTags: ["BloodRequest"],
+    }),
   }),
 });
 
@@ -85,4 +89,5 @@ export const {
   useGetMyContributionQuery,
   useGetMyPendingDonationByIdQuery,
   useGetMyRequestByIdQuery,
+  useGetLatestFiveQuery,
 } = bloodRequestApi;
