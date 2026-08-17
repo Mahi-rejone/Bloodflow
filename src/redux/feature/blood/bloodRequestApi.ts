@@ -15,7 +15,7 @@ const bloodRequestApi = baseApi.injectEndpoints({
       providesTags: ["BloodRequest"],
     }),
     getBloodRequestById: builder.query({
-      query: (id: string) => `/blood/${id}`,
+      query: (id: string) => `/blood/${id}/get-single`,
       providesTags: ["BloodRequest"],
     }),
     acceptBloodRequest: builder.mutation({
@@ -69,7 +69,7 @@ const bloodRequestApi = baseApi.injectEndpoints({
       providesTags: ["BloodRequest"],
     }),
     getLatestFive: builder.query({
-      query: () => `/blood/get-latest-five`,
+      query: () => ({ url: `/blood/get-latest-five`, method: "GET" }),
       providesTags: ["BloodRequest"],
     }),
   }),
