@@ -21,7 +21,7 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-type BloodGroup =
+export type BloodGroup =
   | "A_POS"
   | "A_NEG"
   | "B_POS"
@@ -60,7 +60,7 @@ interface User {
   profile: UserProfile | null;
 }
 
-const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
+export const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
   A_POS: "A+",
   A_NEG: "A-",
   B_POS: "B+",
@@ -78,7 +78,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
   USER: "Donor/Recipient",
 };
 
-function initials(name: string): string {
+export function initials(name: string): string {
   if (!name) return "?";
   return name
     .trim()

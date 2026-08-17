@@ -3,55 +3,27 @@ import Image from "next/image";
 import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { useGetLatestFiveQuery } from "@/redux/feature/blood/bloodRequestApi";
-
-const popularBlogs = [
-  {
-    id: 1,
-    title: "JavaScript Tutorial",
-    badge: "Coding",
-    image:
-      "https://images.pexels.com/photos/3861964/pexels-photo-3861964.jpeg?auto=compress&cs=tinysrgb&w=800",
-    count: 4300,
-  },
-  {
-    id: 2,
-    title: "Tech Trends 2025",
-    badge: "Tech",
-    image:
-      "https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&w=800",
-    count: 3200,
-  },
-  {
-    id: 3,
-    title: "The Future of AI",
-    badge: "AI",
-    image:
-      "https://images.pexels.com/photos/2007647/pexels-photo-2007647.jpeg?auto=compress&cs=tinysrgb&w=800",
-    count: 2400,
-  },
-  {
-    id: 4,
-    title: "React Hooks Explained",
-    badge: "Coding",
-    image:
-      "https://images.pexels.com/photos/943096/pexels-photo-943096.jpeg?auto=compress&cs=tinysrgb&w=800",
-    count: 1500,
-  },
-  {
-    id: 5,
-    title: "Image Generation with AI",
-    badge: "AI",
-    image:
-      "https://images.pexels.com/photos/3094799/pexels-photo-3094799.jpeg?auto=compress&cs=tinysrgb&w=800",
-    count: 1200,
-  },
-];
+import {
+  BLOOD_GROUP_LABEL,
+  BloodGroup,
+  initials,
+} from "@/app/(MainPage)/(withnav)/(Authorized)/donors/[id]/page";
+import { useGetLatestFiveBlogQuery } from "@/redux/feature/blog/blogApi";
 
 const CardList = ({ title }: { title: string }) => {
   const { data, isLoading } = useGetLatestFiveQuery(undefined);
-  if (isLoading) {
+  const { data: blog, isLoading: isBlogLoading } =
+    useGetLatestFiveBlogQuery(undefined);
+  if (isLoading || isBlogLoading) {
     return;
   }
+  const popularBlogs = blog?.data?.map(
+    (d: { author: { fullName: string }; id: string; title: string }) => ({
+      id: d?.id,
+      title: d?.title,
+      badge: d?.author?.fullName,
+    }),
+  );
   const latestContributions = data?.data?.map(
     (d: {
       id: string;
@@ -61,7 +33,7 @@ const CardList = ({ title }: { title: string }) => {
         profile: { bloodGroup?: string; img?: string };
       };
     }) => ({
-      id: d.id,
+      id: d?.id,
       title: d?.donor?.fullName,
       badge: d?.donor?.profile?.bloodGroup,
       image: d?.donor?.profile?.img,
@@ -79,19 +51,18 @@ const CardList = ({ title }: { title: string }) => {
             key={item.id}
             className="flex-row items-center justify-between gap-4 p-4"
           >
-            <div className="w-12 h-12 rounded-sm relative overflow-hidden">
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover"
-              />
+            <div className="w-12 h-12 bg-slate-100 rounded-[50%] font-bold flex justify-center items-center overflow-hidden">
+              {initials(title === "Popular Blogs" ? item?.badge : item.title)}
             </div>
             <CardContent className="flex-1 p-0">
               <CardTitle className="text-sm font-medium">
-                {item.title}
+                {item?.title}
               </CardTitle>
-              <Badge variant="secondary">{item.badge}</Badge>
+              <Badge variant="secondary">
+                {title === "Popular Blogs"
+                  ? item?.badge
+                  : BLOOD_GROUP_LABEL[item?.badge as BloodGroup]}
+              </Badge>
             </CardContent>
           </Card>
         ))}
