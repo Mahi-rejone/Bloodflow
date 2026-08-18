@@ -6,6 +6,7 @@ import {
   useGetBloodRequestByIdQuery,
   useAcceptBloodRequestMutation,
 } from "@/redux/feature/blood/bloodRequestApi";
+import { useGetMeQuery } from "@/redux/feature/user/userApi";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCurrentUser } from "@/redux/feature/authSlice";
 import {
@@ -39,6 +40,7 @@ export default function RequestDetailsPage() {
   const router = useRouter();
   const currentUser = useAppSelector(selectCurrentUser);
   const { data, isLoading, error } = useGetBloodRequestByIdQuery(id);
+  const { data: meData } = useGetMeQuery(undefined, { skip: !currentUser });
   const [acceptBloodRequest, { isLoading: isAccepting }] =
     useAcceptBloodRequestMutation();
 
@@ -58,7 +60,7 @@ export default function RequestDetailsPage() {
       <div className="max-w-2xl mx-auto mt-12 px-4">
         <Alert
           type="error"
-          title="Couldn't load this request"
+          message="Couldn't load this request"
           description="It may have been fulfilled or removed."
           showIcon
         />
@@ -69,8 +71,11 @@ export default function RequestDetailsPage() {
   const req = data?.data;
   if (!req) return null;
 
+  const myBloodGroup = meData?.data?.profile?.bloodGroup;
   const isOwnRequest = currentUser?.id === req.requester?.id;
-  const canHelp = req.status === "PENDING" && !isOwnRequest;
+  const isPending = req.status === "PENDING";
+  const bloodGroupMatches = !!myBloodGroup && myBloodGroup === req.bloodGroup;
+  const canHelp = isPending && !isOwnRequest && bloodGroupMatches;
 
   const handleOpenModal = () => {
     if (!currentUser) {
@@ -81,19 +86,19 @@ export default function RequestDetailsPage() {
     setModalOpen(true);
   };
 
-const handleConfirm = async () => {
-  if (!units || units < 1) return;
-  try {
-    await acceptBloodRequest({ id, units }).unwrap();
-    message.success("Thanks! Your contribution has been recorded.");
-    setModalOpen(false);
-  } catch (err: any) {
-    message.error(
-      err?.data?.errorMessage ||
-        "Couldn't record your contribution. Try again.",
-    );
-  }
-};
+  const handleConfirm = async () => {
+    if (!units || units < 1) return;
+    try {
+      await acceptBloodRequest({ id, units }).unwrap();
+      message.success("Thanks! Your contribution has been recorded.");
+      setModalOpen(false);
+    } catch (err: any) {
+      message.error(
+        err?.data?.errorMessage ||
+          "Couldn't record your contribution. Try again.",
+      );
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
@@ -160,6 +165,14 @@ const handleConfirm = async () => {
             </div>
           </div>
         </div>
+
+        {isPending && !isOwnRequest && currentUser && !bloodGroupMatches && (
+          <p className="mt-6 text-center text-sm text-app-text-light">
+            Your blood group (
+            {myBloodGroup ? bloodGroupLabel(myBloodGroup) : "unknown"}) doesn't
+            match what's needed ({bloodGroupLabel(req.bloodGroup)}).
+          </p>
+        )}
 
         {canHelp && (
           <Button
