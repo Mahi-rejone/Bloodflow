@@ -33,29 +33,7 @@ import { sideBarRouteGenerator } from "@/utils/RouteGeneratior";
 
 import { adminSidebarRoute } from "@/routes/admin.route";
 import { userSidebarRoute } from "@/routes/user.route";
-
-const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+import { RxDashboard } from "react-icons/rx";
 
 const AppSidebar = () => {
   /**
@@ -68,6 +46,28 @@ const AppSidebar = () => {
   const [mounted, setMounted] = useState(false);
 
   const currentUser = useAppSelector(selectCurrentUser);
+  const items = [
+    {
+      title: "Home",
+      url: "/",
+      icon: Home,
+    },
+    {
+      title: "Dashboard",
+      url: `/${currentUser?.role?.toLowerCase()}/dashboard`,
+      icon: RxDashboard,
+    },
+    // {
+    //   title: "Inbox",
+    //   url: "#",
+    //   icon: Inbox,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings,
+    // },
+  ];
 
   useEffect(() => {
     setMounted(true);
