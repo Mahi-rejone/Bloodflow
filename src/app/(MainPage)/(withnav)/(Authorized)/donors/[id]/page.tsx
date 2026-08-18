@@ -58,7 +58,7 @@ interface User {
   role: UserRole;
   createdAt: string;
   profile: UserProfile | null;
-  pendingRequestCount?: number;
+  pendingRequests: number;
 }
 
 export const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
@@ -298,11 +298,13 @@ export default function DonorProfilePage() {
           <div className="col-span-2 bg-white px-3 py-4.5 text-center sm:col-span-1">
             <div
               style={{ fontFamily: "var(--font-fraunces)" }}
-              className="text-[clamp(20px,4vw,26px)] font-semibold"
+              className="text-[clamp(20px,4vw,26px)] font-semibold text-[#B3541E]"
             >
-              {ROLE_LABEL[user.role] || user.role}
+              {user.pendingRequests}
             </div>
-            <div className="mt-1 text-[11px] text-[#5B554F]">Role</div>
+            <div className="mt-1 text-[11px] text-[#5B554F]">
+              Pending requests
+            </div>
           </div>
         </div>
 
