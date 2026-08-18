@@ -149,7 +149,7 @@ export default function DonorsPageContent({
             style={{ maxWidth: 220 }}
           />
         </div>
-        {donors.length > 0 && (
+        {Boolean(bloodGroup && district.trim() && donors.length > 0) && (
           <Button
             type="primary"
             className="mb-6"
@@ -185,7 +185,7 @@ export default function DonorsPageContent({
         </div>
       )}
 
-      {error && <Alert type="error" message="Couldn't load donors" showIcon />}
+      {error && <Alert type="error" title="Couldn't load donors" showIcon />}
 
       {!isLoading && !error && donors.length === 0 && (
         <Empty description="No donors match these filters" className="py-24" />

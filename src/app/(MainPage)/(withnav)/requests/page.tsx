@@ -1,15 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useGetPendingRequestsQuery } from "@/redux/feature/blood/bloodRequestApi";
-import { Card, Tag, Spin, Alert, Empty, Select } from "antd";
+import { useGetAllDonorsQuery } from "@/redux/feature/user/userApi";
+import { useNotifyDonorsMutation } from "@/redux/feature/notification/notificationApi";
+import { Card, Tag, Spin, Alert, Empty, Select, Input, Button, Modal, message } from "antd";
 import {
   DropletsIcon,
   HospitalIcon,
   MapPinIcon,
   ClockIcon,
 } from "lucide-react";
+import { BellIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -30,12 +33,50 @@ const urgencyTag = (neededAt: string) => {
 
 export default function PendingRequestsPage() {
   const [filter, setFilter] = useState<string | undefined>(undefined);
+  const [town, setTown] = useState("");
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
+
   const { data, isLoading, error } = useGetPendingRequestsQuery(undefined);
+  const [notifyDonors, { isLoading: isNotifying }] = useNotifyDonorsMutation();
 
   const requests = data?.data ?? [];
   const filtered = filter
     ? requests.filter((r: any) => r.bloodGroup === toBloodGroupEnum(filter))
     : requests;
+
+  const canNotify = Boolean(filter && town.trim());
+
+  // Only fetch matching donors once both filters are set and the modal is opened
+  const { data: donorsData, isFetching: donorsLoading } = useGetAllDonorsQuery(
+    { bloodGroup: filter ? toBloodGroupEnum(filter) : undefined, town: town.trim() || undefined },
+    { skip: !notifyModalOpen },
+  );
+  const matchingDonors = donorsData?.data ?? [];
+
+  const openNotifyModal = () => {
+    setNotifyMessage(
+      `Urgent: ${filter} blood is needed in ${town}. Please reach out if you're able to help.`,
+    );
+    setNotifyModalOpen(true);
+  };
+
+  const handleSendNotification = async () => {
+    if (matchingDonors.length === 0) {
+      message.warning("No matching donors found for this blood group and town.");
+      return;
+    }
+    try {
+      await notifyDonors({
+        message: notifyMessage,
+        donorIds: matchingDonors.map((d: any) => d.id),
+      }).unwrap();
+      message.success(`Notified ${matchingDonors.length} donor(s)`);
+      setNotifyModalOpen(false);
+    } catch (err: any) {
+      message.error(err?.data?.errorMessage || "Couldn't send notification");
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -47,14 +88,31 @@ export default function PendingRequestsPage() {
           </p>
         </div>
 
-        <Select
-          allowClear
-          placeholder="Filter by blood group"
-          style={{ width: 220 }}
-          value={filter}
-          onChange={setFilter}
-          options={BLOOD_GROUPS.map((g) => ({ value: g, label: g }))}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Select
+            allowClear
+            placeholder="Filter by blood group"
+            style={{ width: 200 }}
+            value={filter}
+            onChange={setFilter}
+            options={BLOOD_GROUPS.map((g) => ({ value: g, label: g }))}
+          />
+          <Input
+            placeholder="Town (e.g. Mirpur)"
+            value={town}
+            onChange={(e) => setTown(e.target.value)}
+            style={{ width: 180 }}
+          />
+          {canNotify && (
+            <Button
+              icon={<BellIcon size={14} />}
+              onClick={openNotifyModal}
+              style={{ backgroundColor: "#dc2626", color: "white", border: "none" }}
+            >
+              Notify Donors
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading && (
@@ -128,6 +186,26 @@ export default function PendingRequestsPage() {
           ))}
         </div>
       )}
+
+      <Modal
+        title="Notify matching donors"
+        open={notifyModalOpen}
+        onCancel={() => setNotifyModalOpen(false)}
+        onOk={handleSendNotification}
+        okText="Send"
+        confirmLoading={isNotifying}
+      >
+        <p className="text-sm text-app-text-light mb-2">
+          {donorsLoading
+            ? "Finding matching donors..."
+            : `This will notify ${matchingDonors.length} donor(s) with ${filter} blood in ${town}.`}
+        </p>
+        <Input.TextArea
+          rows={4}
+          value={notifyMessage}
+          onChange={(e) => setNotifyMessage(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 }
