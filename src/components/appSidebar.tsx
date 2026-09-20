@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Home, Inbox, Settings, Plus, ChevronDown } from "lucide-react";
+import { Home, Inbox, Settings, Plus, ChevronDown, Wallet } from "lucide-react";
 
 import {
   Sidebar,
@@ -34,6 +34,7 @@ import { sideBarRouteGenerator } from "@/utils/RouteGeneratior";
 import { adminSidebarRoute } from "@/routes/admin.route";
 import { userSidebarRoute } from "@/routes/user.route";
 import { RxDashboard } from "react-icons/rx";
+import { title } from "process";
 
 const AppSidebar = () => {
   /**
@@ -67,6 +68,11 @@ const AppSidebar = () => {
     //   url: "#",
     //   icon: Settings,
     // },
+    {
+      title: "My Donations",
+      url: "/donate/history",
+      icon: Wallet,
+    },
   ];
 
   useEffect(() => {
@@ -205,14 +211,21 @@ const AppSidebar = () => {
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-
                     {/* Add User */}
                     <SidebarMenuItem>
                       <SidebarMenuButton asChild>
                         <Link href="/admin/users/create">
                           <Plus className="size-4" />
-
                           <span>Add User</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    {/* All Donations */}
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <Link href="/admin/donations">
+                          <Wallet className="size-4" />
+                          <span>All Donations</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

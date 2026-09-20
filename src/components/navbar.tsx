@@ -60,6 +60,7 @@ export default function Navbar() {
     { href: "/donors", label: "Find Donors" },
     { href: "/requests", label: "Blood Requests" },
     { href: "/blogs", label: "Blogs & Events" },
+    { href: "/donate", label: "Donate Money" },
   ];
   
   useEffect(() => {
