@@ -1,18 +1,51 @@
 "use client";
 
+import { useState } from "react";
 import { useGetMyMoneyDonationsQuery } from "@/redux/feature/donation/donationApi";
-import { Table, Tag, Spin, Alert, Empty } from "antd";
+import { Table, Tag, Spin, Alert, Empty, Button, message } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
+import { pdf } from "@react-pdf/renderer";
+import DonationReceipt from "@/components/DonationReceipt";
 
 const STATUS_COLOR: Record<string, string> = {
-  SUCCESS: "green",
-  PENDING: "gold",
+  PAID: "green",
   FAILED: "red",
-  CANCELLED: "default",
 };
 
 export default function DonationHistoryPage() {
   const { data, isLoading, error } = useGetMyMoneyDonationsQuery();
   const donations = data?.data ?? [];
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = async (record: any) => {
+    setDownloadingId(record.id);
+    try {
+      const blob = await pdf(
+        <DonationReceipt
+          data={{
+            donorName: record.donorName,
+            donorEmail: record.donorEmail,
+            amount: record.amount,
+             currency: record.currency,
+            tranId: record.tranId,
+            status: record.status,
+            createdAt: record.createdAt,
+          }}
+        />,
+      ).toBlob();
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `BloodFlow-Receipt-${record.tranId}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      message.error("Couldn't generate receipt.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const columns = [
     {
@@ -39,6 +72,23 @@ export default function DonationHistoryPage() {
       render: (status: string) => (
         <Tag color={STATUS_COLOR[status] || "default"}>{status}</Tag>
       ),
+    },
+    {
+      title: "Receipt",
+      key: "receipt",
+      render: (_: any, record: any) =>
+        record.status === "PAID" ? (
+          <Button
+            size="small"
+            icon={<DownloadOutlined />}
+            loading={downloadingId === record.id}
+            onClick={() => handleDownload(record)}
+          >
+            Download
+          </Button>
+        ) : (
+          <span className="text-xs text-app-text-light">—</span>
+        ),
     },
   ];
 
