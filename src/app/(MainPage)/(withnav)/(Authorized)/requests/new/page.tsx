@@ -4,10 +4,19 @@ import { DropletsIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Input, Button, Select, DatePicker, InputNumber, Form } from "antd";
+import {
+  Input,
+  Button,
+  Select,
+  DatePicker,
+  InputNumber,
+  Form,
+  Checkbox,
+} from "antd";
 import { HomeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useCreateBloodRequestMutation } from "@/redux/feature/blood/bloodRequestApi";
+import { useNotifyNearby } from "@/hooks/useNotifyNearby";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -16,6 +25,7 @@ const toBloodGroupEnum = (value: string) =>
 
 export default function RequestBlood() {
   const [createBloodRequest, { isLoading }] = useCreateBloodRequestMutation();
+  const { notify, loading: alerting } = useNotifyNearby();
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -34,7 +44,13 @@ export default function RequestBlood() {
     };
 
     try {
-      await createBloodRequest(payload).unwrap();
+      const result = await createBloodRequest(payload).unwrap();
+
+      // The request already exists at this point, so a failed alert
+      // must not block the redirect. The hook shows its own error.
+      if (values.alertNearby && result?.data?.id) {
+        await notify(payload.bloodGroup, result.data.id);
+      }
       router.push("/requests");
     } catch (err: any) {
       setErrorMsg(err?.data?.errorMessage || "Failed to submit request");
@@ -173,12 +189,18 @@ export default function RequestBlood() {
               />
             </Form.Item>
 
+            <Form.Item name="alertNearby" valuePropName="checked">
+              <Checkbox>
+                Also alert nearby donors using my current location
+              </Checkbox>
+            </Form.Item>
+
             <Form.Item>
               <Button
                 block
                 type="primary"
                 htmlType="submit"
-                loading={isLoading}
+                loading={isLoading || alerting}
                 style={{ backgroundColor: "#dc2626" }}
               >
                 Submit Request

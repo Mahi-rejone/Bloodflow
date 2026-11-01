@@ -41,8 +41,21 @@ const notificationApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Notification"],
     }),
+    notifyNearbyDonors: builder.mutation({
+      query: (payload: {
+        latitude: number;
+        longitude: number;
+        bloodGroup: string;
+        requestId?: string;
+      }) => ({
+        url: "/notification/notify-nearby",
+        method: "POST",
+        body: payload,
+      }),
+    }),
   }),
 });
+
 
 export const {
   useGetMyNotificationsQuery,
@@ -51,4 +64,5 @@ export const {
   useMarkAllAsReadMutation,
   useCreateNotificationMutation,
   useNotifyDonorsMutation,
+  useNotifyNearbyDonorsMutation,
 } = notificationApi;
