@@ -164,13 +164,13 @@ export default function HeroBanner() {
           </div>
 
           {/* Right — rounded image card, lg and up only */}
-          <div className="relative hidden h-64 w-full overflow-hidden rounded-3xl border border-app-border sm:h-80 lg:block lg:h-[400px]">
+          <div className="relative hidden h-64 w-full overflow-hidden rounded-3xl border border-app-border sm:h-80 lg:block lg:h-[500px]">
             <Image
               src="/assets/hero-bg.jpg"
               alt="A donor giving blood at a BloodFlow donation drive"
               fill
               priority
-              sizes="(min-width: 1024px) 50vw, 100vw"
+              sizes="(min-width: 800px) 50vw, 100vw"
               className="object-cover"
             />
           </div>
