@@ -3,7 +3,6 @@
 import { useGetPendingRequestsQuery } from "@/redux/feature/blood/bloodRequestApi";
 import { Card, Tag, Spin, Alert, Empty, Select } from "antd";
 import {
-  DropletsIcon,
   HospitalIcon,
   MapPinIcon,
   ClockIcon,
@@ -66,7 +65,7 @@ export default function PendingRequestsPage() {
       {error && (
         <Alert
           type="error"
-          message="Couldn't load blood requests"
+          title="Couldn't load blood requests"
           description="Please try refreshing the page."
           showIcon
         />
