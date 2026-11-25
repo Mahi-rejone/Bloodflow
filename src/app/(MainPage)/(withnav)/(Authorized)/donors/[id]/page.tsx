@@ -21,7 +21,7 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-type BloodGroup =
+export type BloodGroup =
   | "A_POS"
   | "A_NEG"
   | "B_POS"
@@ -58,9 +58,10 @@ interface User {
   role: UserRole;
   createdAt: string;
   profile: UserProfile | null;
+  pendingRequests: number;
 }
 
-const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
+export const BLOOD_GROUP_LABEL: Record<BloodGroup, string> = {
   A_POS: "A+",
   A_NEG: "A-",
   B_POS: "B+",
@@ -78,7 +79,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
   USER: "Donor/Recipient",
 };
 
-function initials(name: string): string {
+export function initials(name: string): string {
   if (!name) return "?";
   return name
     .trim()
@@ -297,11 +298,13 @@ export default function DonorProfilePage() {
           <div className="col-span-2 bg-white px-3 py-4.5 text-center sm:col-span-1">
             <div
               style={{ fontFamily: "var(--font-fraunces)" }}
-              className="text-[clamp(20px,4vw,26px)] font-semibold"
+              className="text-[clamp(20px,4vw,26px)] font-semibold text-[#B3541E]"
             >
-              {ROLE_LABEL[user.role] || user.role}
+              {user.pendingRequests}
             </div>
-            <div className="mt-1 text-[11px] text-[#5B554F]">Role</div>
+            <div className="mt-1 text-[11px] text-[#5B554F]">
+              Pending requests
+            </div>
           </div>
         </div>
 

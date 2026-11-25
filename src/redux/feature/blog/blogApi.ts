@@ -33,6 +33,10 @@ const blogApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Blog"],
     }),
+    getLatestFiveBlog: builder.query({
+      query: () => ({ url: `/blog/get-latest-five`, method: "GET" }),
+      providesTags: ["Blog"],
+    }),
   }),
 });
 
@@ -42,4 +46,5 @@ export const {
   useCreateBlogMutation,
   useUpdateBlogMutation,
   useDeleteBlogMutation,
+  useGetLatestFiveBlogQuery,
 } = blogApi;

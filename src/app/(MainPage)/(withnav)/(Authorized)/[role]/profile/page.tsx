@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaDonate } from "react-icons/fa";
 import { useGetMeQuery } from "@/redux/feature/user/userApi";
 import {
   useGetMyDonationsQuery,
@@ -274,6 +274,12 @@ export default function ProfilePage() {
               Edit Profile
             </Button>
           </Link>
+         <Link href="/donate/history">
+           <Button>
+             <FaDonate />
+           My Donations
+          </Button>
+         </Link>
         </div>
 
         {/* Donor card */}

@@ -76,7 +76,7 @@ export default function MyRequestsPage() {
   const requests: RequestItem[] = data?.data ?? [];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="page-container py-8">
       <h1
         style={{ fontFamily: "var(--font-fraunces)" }}
         className="mb-6 text-2xl font-semibold text-[#1B1714]"
@@ -98,7 +98,7 @@ export default function MyRequestsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {requests.map((r) => {
           const style = STATUS_STYLE[r.status] ?? STATUS_STYLE.PENDING;
 

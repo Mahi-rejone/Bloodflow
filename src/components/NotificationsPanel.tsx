@@ -27,23 +27,21 @@ export default function NotificationsPanel({
 
   const notifications = data?.data ?? [];
 
-  const handleViewProfile = async (notification: any) => {
-    const senderId = notification.createdBy?.id;
-
-    if (!senderId) {
-      return;
-    }
-
-    // Mark notification as read
+  const handleAction = async (notification: any) => {
     if (!notification.isRead) {
       await markAsRead(notification.id);
     }
 
-    // Navigate to sender's public profile
-    router.push(`/donors/${senderId}`);
+    const destination =
+      notification.link ||
+      (notification.createdBy?.id
+        ? `/donors/${notification.createdBy.id}`
+        : null);
 
-    // Close drawer
-    onClose();
+    if (destination) {
+      router.push(destination);
+      onClose();
+    }
   };
 
   return (
@@ -68,46 +66,46 @@ export default function NotificationsPanel({
       )}
 
       <div className="space-y-3">
-        {notifications.map((n: any) => (
-          <div
-            key={n.id}
-            className={`rounded-lg border border-app-border p-3 text-sm ${
-              n.isRead
-                ? "bg-app-white text-app-text-light"
-                : "bg-red-50 font-medium text-app-text"
-            }`}
-          >
-            {/* Notification message */}
-            <p>{n.message}</p>
+        {notifications.map((n: any) => {
+          const hasAction = Boolean(n.link || n.createdBy?.id);
 
-            {/* Sender */}
-            {n.createdBy && (
-              <p className="mt-2 text-xs text-app-text-muted">
-                From:{" "}
-                <span className="font-medium">
-                  {n.createdBy.fullName || n.createdBy.username}
-                </span>
+          return (
+            <div
+              key={n.id}
+              className={`rounded-lg border border-app-border p-3 text-sm ${
+                n.isRead
+                  ? "bg-app-white text-app-text-light"
+                  : "bg-red-50 font-medium text-app-text"
+              }`}
+            >
+              <p>{n.message}</p>
+
+              {n.createdBy && (
+                <p className="mt-2 text-xs text-app-text-muted">
+                  From:{" "}
+                  <span className="font-medium">
+                    {n.createdBy.fullName || n.createdBy.username}
+                  </span>
+                </p>
+              )}
+
+              <p className="mt-1 text-xs text-app-text-muted">
+                {new Date(n.createdAt).toLocaleString()}
               </p>
-            )}
 
-            {/* Date */}
-            <p className="mt-1 text-xs text-app-text-muted">
-              {new Date(n.createdAt).toLocaleString()}
-            </p>
-
-            {/* View Profile */}
-            {n.createdBy?.id && (
-              <Button
-                type="primary"
-                size="small"
-                className="mt-3"
-                onClick={() => handleViewProfile(n)}
-              >
-                View Profile
-              </Button>
-            )}
-          </div>
-        ))}
+              {hasAction && (
+                <Button
+                  type="primary"
+                  size="small"
+                  className="mt-3"
+                  onClick={() => handleAction(n)}
+                >
+                  {n.link ? "View" : "View Profile"}
+                </Button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </Drawer>
   );

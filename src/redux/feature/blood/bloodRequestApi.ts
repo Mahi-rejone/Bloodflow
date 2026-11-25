@@ -34,12 +34,10 @@ const bloodRequestApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["BloodRequest"],
     }),
-
     getContributionsForRequest: builder.query({
       query: (requestId: string) => `/blood/${requestId}/contributions`,
       providesTags: ["BloodRequest"],
     }),
-
     getMyContribution: builder.query({
       query: (requestId: string) => `/blood/${requestId}/my-contribution`,
       providesTags: ["BloodRequest"],

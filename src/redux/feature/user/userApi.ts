@@ -21,7 +21,7 @@ export interface UserItem {
   isVerified: boolean;
   status: string;
   createdAt: string;
-
+  pendingRequests: number;
   profile?: UserProfile;
 }
 
